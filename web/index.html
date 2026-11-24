@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>СтримПомощник</title><link rel="stylesheet" href="/style.css"><script defer src="/app.js"></script></head>
+<body><main>
+<header><h1>СтримПомощник</h1></header>
+<p id="status" role="status" aria-live="polite"></p>
+<section><h2>Эфир</h2>
+<form id="start"><label>Название <input name="title" maxlength="120" required></label><button>Начать эфир</button></form>
+<label>Сессия <select id="sessions"><option value="">Выберите эфир</option></select></label>
+<div id="session" hidden><p id="session-info"></p><button id="finish" type="button">Завершить эфир</button>
+<form id="mark"><label>Подпись момента <input name="label" maxlength="120" required></label>
+<label>Приватная заметка <input name="note" maxlength="500"></label><button>Поставить таймкод</button></form></div>
+</section>
+<section id="summary" hidden><h2 id="summary-title">Таймкоды</h2><p id="duration"></p><ul id="marks"></ul></section>
+</main></body></html>
