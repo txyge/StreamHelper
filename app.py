@@ -203,7 +203,7 @@ def report_error():
 
 def main():
     parser = argparse.ArgumentParser(description="СтримПомощник")
-    parser.add_argument("--port", type=int, default=8765)
+    parser.add_argument("--port", type=int, default=18765)
     parser.add_argument("--data", default=ROOT / "data")
     args = parser.parse_args()
     with ThreadingHTTPServer(("127.0.0.1", args.port), Handler) as server:
