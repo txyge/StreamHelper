@@ -62,6 +62,7 @@ function list(id, items, render, empty) {
   if (!items.length) {
     const row = document.createElement("li");
     row.textContent = empty;
+    row.className = "empty";
     container.append(row);
   }
 }
@@ -72,7 +73,9 @@ async function refresh(preferred = selected) {
   select.replaceChildren(option("", "Выберите эфир"), ...sessions.map(item =>
     option(String(item.id), item.title + (item.ended === null ? " · в эфире" : " · завершён"))
   ));
-  const latest = sessions.find(item => item.ended === null) || sessions[0];
+  const activeSession = sessions.find(item => item.ended === null);
+  byId("start").hidden = Boolean(activeSession);
+  const latest = activeSession || sessions[0];
   const target = preferred ?? (latest ? String(latest.id) : "");
   selected = target;
   select.value = target;
@@ -90,6 +93,12 @@ function render() {
   byId("session").hidden = !current;
   byId("summary").hidden = !current;
   byId("chat").hidden = !current;
+  byId("duration").hidden = !current;
+  byId("session-state").classList.toggle("live", Boolean(current && current.session.ended === null));
+  byId("session-state").textContent = current
+    ? (current.session.ended === null ? "В эфире" : "Эфир завершён")
+    : "Сессия не выбрана";
+  for (const link of document.querySelectorAll("[data-session-link]")) link.hidden = !current;
   renderSummary();
   if (!current) {
     return;
@@ -101,7 +110,13 @@ function render() {
     + (live ? "" : " · Завершение " + date(session.ended));
   byId("finish").hidden = !live;
   byId("mark").hidden = !live;
-  byId("duration").textContent = (live ? "От начала эфира " : "Длительность ") + time(duration);
+  byId("duration-label").textContent = live ? "От начала эфира" : "Длительность";
+  byId("duration-value").textContent = time(duration);
+  byId("mark-count").textContent = marks.length;
+  byId("mark-count").hidden = !marks.length;
+  const unanswered = current.questions.filter(question => !question.answered).length;
+  byId("question-count").textContent = "Новых: " + unanswered;
+  byId("question-count").hidden = !unanswered;
   list("marks", marks, (row, item) => {
     row.textContent = time(item.seconds) + " · " + item.label + (item.note ? " · " + item.note : "");
   }, "Отметок пока нет.");

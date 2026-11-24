@@ -2,45 +2,94 @@
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>СтримПомощник</title><link rel="stylesheet" href="/style.css">
 <script defer src="/app.js"></script><script defer src="/summary.js"></script></head>
-<body><main>
-<header class="masthead"><h1>СтримПомощник</h1><a href="/help">Инструкция подключения</a></header>
+<body class="dashboard">
+<aside class="rail">
+  <a class="brand" href="/" aria-label="СтримПомощник, главная"><span class="brand-icon" aria-hidden="true">◉</span><span>СтримПомощник</span></a>
+  <nav aria-label="Разделы панели">
+    <a href="#stream"><span aria-hidden="true">◫</span> Сессия</a>
+    <a href="#summary" data-session-link hidden><span aria-hidden="true">◷</span> Таймкоды</a>
+    <a href="#chat" data-session-link hidden><span aria-hidden="true">☷</span> Вопросы</a>
+    <a href="#report" data-session-link hidden><span aria-hidden="true">▤</span> Итог</a>
+    <a href="#connections"><span aria-hidden="true">⌁</span> Подключения</a>
+  </nav>
+  <a class="rail-help" href="/help">Инструкция подключения <span aria-hidden="true">↗</span></a>
+</aside>
+<main>
+<header class="masthead"><h1>Панель стримера</h1></header>
 <p id="status" role="status" aria-live="polite"></p>
-<section><h2>Подключения</h2>
-<p id="bot-state" role="status">Проверяем Streamer.bot…</p>
-<p id="da-state" role="status">Проверяем DonationAlerts…</p>
-<details><summary>Настройки DonationAlerts</summary>
-<form id="da-settings">
-<label>Client ID <input name="client_id" inputmode="numeric" pattern="[0-9]+" maxlength="64" required></label>
-<label>Client Secret <input name="client_secret" type="password" maxlength="512" autocomplete="off" required></label>
-<button>Сохранить настройки</button>
-</form>
-</details>
-<form id="da-connect" method="get" action="/donationalerts/connect" hidden><button>Подключить DonationAlerts</button></form>
+
+<section id="stream" class="session-panel" aria-labelledby="stream-heading">
+  <div class="session-main">
+    <h2 id="stream-heading">Сессия</h2>
+    <div class="field"><label for="sessions">Выбрать эфир</label><select id="sessions"><option value="">Выберите эфир</option></select></div>
+    <div id="session" hidden>
+      <p id="session-info"></p>
+      <button id="finish" class="button button-outline" type="button">Завершить сессию</button>
+    </div>
+    <form id="start">
+      <label>Название <input name="title" maxlength="120" required></label>
+      <button>Начать сессию вручную</button>
+    </form>
+  </div>
+  <div class="session-clock">
+    <span id="session-state" class="session-state">Сессия не выбрана</span>
+    <p id="duration" class="clock-reading" hidden><span id="duration-label"></span><strong id="duration-value"></strong></p>
+  </div>
 </section>
-<section><h2>Сессия</h2>
-<form id="start"><label>Название <input name="title" maxlength="120" required></label><button>Начать сессию вручную</button></form>
-<div class="field"><label for="sessions">Сессия</label><select id="sessions"><option value="">Выберите эфир</option></select></div>
-<div id="session" hidden><p id="session-info"></p><button id="finish" type="button">Завершить сессию</button></div>
+
+<div class="work-grid">
+  <section id="summary" class="panel" hidden>
+    <header class="panel-heading"><h2><span class="symbol" aria-hidden="true">◷</span>Таймкоды</h2><span class="count" id="mark-count" hidden></span></header>
+    <form id="mark" class="mark-form">
+      <label>Подпись момента <input name="label" maxlength="120" required></label>
+      <label>Заметка <input name="note" maxlength="500"></label>
+      <button>Поставить таймкод</button>
+    </form>
+    <ul class="data-list" id="marks"></ul>
+  </section>
+  <section id="chat" class="panel" hidden>
+    <header class="panel-heading"><h2><span class="symbol symbol-purple" aria-hidden="true">?</span>Вопросы к стримеру</h2><span class="count" id="question-count" hidden></span></header>
+    <ul class="data-list" id="questions"></ul>
+  </section>
+</div>
+
+<section id="report" class="panel report" hidden>
+  <header class="panel-heading report-heading">
+    <div><h2><span class="symbol" aria-hidden="true">▤</span>Итог трансляции</h2><p id="report-title"></p></div>
+    <p id="report-duration" class="duration-chip"></p>
+  </header>
+  <div class="report-grid">
+    <div class="report-card"><h3>Категории и темы эфира</h3><ul class="data-list" id="topics"></ul></div>
+    <div class="report-card"><h3>Обнаруженные зрители</h3><ul class="data-list" id="viewers"></ul></div>
+    <div class="report-card"><h3>Модераторы на эфире</h3><ul class="data-list" id="moderators"></ul></div>
+    <div class="report-card"><h3>Донаты за эфир</h3><p class="muted" id="donation-updated"></p><ul class="data-list" id="donations"></ul>
+      <button class="button button-secondary" id="sync-donations" type="button">Обновить донаты</button></div>
+  </div>
+  <div class="export-panel">
+    <h3>Выгрузка итога</h3>
+    <div class="actions"><a class="button button-secondary" id="download-json" href="#">Скачать JSON</a><a class="button button-secondary" id="download-credits" href="#">Скачать текст для титров</a></div>
+    <div class="actions export-url">
+      <label>Локальный URL для интеграции <input id="summary-url" type="url" readonly></label>
+      <button class="button button-secondary" id="copy-summary-url" type="button">Скопировать URL</button>
+    </div>
+  </div>
 </section>
-<section id="summary" hidden><h2>Таймкоды</h2>
-<form id="mark"><label>Подпись момента <input name="label" maxlength="120" required></label>
-<label>Заметка <input name="note" maxlength="500"></label><button>Поставить таймкод</button></form>
-<p id="duration"></p><ul id="marks"></ul></section>
-<section id="chat" hidden><h2>Вопросы к стримеру</h2><ul id="questions"></ul></section>
-<section id="report" hidden><h2>Итог трансляции</h2>
-<p id="report-title"></p><p id="report-duration"></p>
-<div class="grid">
-<div><h3>Категории и темы эфира</h3><ul id="topics"></ul></div>
-<div><h3>Обнаруженные зрители</h3><ul id="viewers"></ul></div>
-<div><h3>Модераторы на эфире</h3><ul id="moderators"></ul></div>
-<div><h3>Донаты за эфир</h3><p id="donation-updated"></p><ul id="donations"></ul>
-<button id="sync-donations" type="button">Обновить донаты</button></div>
-</div>
-<h3>Выгрузка итога</h3>
-<div class="actions"><a id="download-json" href="#">Скачать JSON</a><a id="download-credits" href="#">Скачать текст для титров</a></div>
-<div class="actions">
-<label>Локальный URL для интеграции <input id="summary-url" type="url" readonly></label>
-<button id="copy-summary-url" type="button">Скопировать URL</button>
-</div>
+
+<section id="connections" class="panel">
+  <header class="panel-heading"><h2><span class="symbol symbol-purple" aria-hidden="true">⌁</span>Подключения</h2></header>
+  <div class="report-grid">
+    <div class="report-card"><h3>Streamer.bot</h3><p id="bot-state" class="muted" role="status">Проверяем Streamer.bot…</p></div>
+    <div class="report-card">
+      <h3>DonationAlerts</h3><p id="da-state" class="muted" role="status">Проверяем DonationAlerts…</p>
+      <details><summary>Настройки DonationAlerts</summary>
+        <form id="da-settings">
+          <label>Client ID <input name="client_id" inputmode="numeric" pattern="[0-9]+" maxlength="64" required></label>
+          <label>Client Secret <input name="client_secret" type="password" maxlength="512" autocomplete="off" required></label>
+          <button>Сохранить настройки</button>
+        </form>
+      </details>
+      <form id="da-connect" method="get" action="/donationalerts/connect" hidden><button class="button button-secondary">Подключить DonationAlerts</button></form>
+    </div>
+  </div>
 </section>
 </main></body></html>
