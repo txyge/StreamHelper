@@ -26,8 +26,8 @@ function run(action, success = "") {
   return async event => {
     event?.preventDefault();
     try {
-      await action(event);
-      status(success);
+      const message = await action(event);
+      status(typeof message === "string" ? message : success);
     } catch (error) {
       status(error.message, true);
     }
@@ -40,7 +40,7 @@ function form(id, action) {
     const button = element.querySelector("button");
     button.disabled = true;
     try {
-      await action(Object.fromEntries(new FormData(element)));
+      return await action(Object.fromEntries(new FormData(element)));
     } finally {
       button.disabled = false;
     }
@@ -103,7 +103,7 @@ function render() {
     + (live ? "" : " · Завершение " + date(session.ended));
   const twitch = current.card.source === "twitch";
   byId("finish").hidden = !live || twitch;
-  byId("twitch-clip").hidden = !live || !twitch;
+  byId("twitch-clip").hidden = !twitch;
   byId("mark").hidden = !live;
   byId("summary-title").textContent = live ? "Таймкоды" : "Личные итоги";
   byId("duration").textContent = (live ? "От начала эфира " : "Длительность ") + time(duration);

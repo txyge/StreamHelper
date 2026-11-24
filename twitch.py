@@ -9,12 +9,12 @@ from urllib.parse import urlencode, urlsplit
 from urllib.request import Request, urlopen
 
 import twitch_data as data
-from streams import Problem
+from streams import Problem, field
 
 ID = "https://id.twitch.tv/oauth2/"
 HELIX = "https://api.twitch.tv/helix/"
 EVENTSUB = "wss://eventsub.wss.twitch.tv/ws"
-SCOPES = "user:read:chat moderator:read:chatters moderation:read bits:read clips:edit"
+SCOPES = "user:read:chat moderator:read:chatters moderation:read bits:read channel:manage:clips"
 PST = timezone(timedelta(hours=-8))
 
 
@@ -189,10 +189,11 @@ class Twitch:
         self.message = "Эфир Twitch подключён." if sid else "Twitch подключён. Ожидаем трансляцию."
         if sid:
             self.update_audience(channel, sid)
+
         if recent:
+            self.update_pending(channel)
             if sid or time.time() - (recent["ended"] or time.time()) < 900:
                 self.update_report(channel, recent)
-            self.update_pending(channel)
 
     def update_audience(self, channel, sid):
         chatters = list(self.pages("chat/chatters", broadcaster_id=channel, moderator_id=channel, first=1000))
@@ -245,18 +246,52 @@ class Twitch:
                     if clip["id"] in pending:
                         data.save_clip(db, pending[clip["id"]], clip)
 
-    def create_clip(self, sid):
+
+    @staticmethod
+    def clip_time(value):
+        if not isinstance(value, str) or not re.fullmatch(r"(?:[0-9]{1,3}:)?[0-5]?[0-9]:[0-5][0-9]", value.strip()):
+            raise Problem("Введите таймкод в формате ММ:СС или ЧЧ:ММ:СС.")
+        parts = [int(part) for part in value.strip().split(":")]
+        return sum(part * 60**index for index, part in enumerate(reversed(parts)))
+
+    def create_clip(self, sid, fields):
         if not self.ready:
             raise Problem("Сначала подключите Twitch.", 409)
+        start = self.clip_time(fields.get("start"))
+        end = self.clip_time(fields.get("end"))
+        if not 5 <= end - start <= 60:
+            raise Problem("Конец должен быть позже начала на 5–60 секунд.")
+        title = field(fields, "title", 100, required=False)
         channel = self.account["user_id"]
         with self.store.connect() as db:
-            stream = data.active(db, channel)
-            if not stream or stream["id"] != sid:
-                raise Problem("Выберите текущий прямой эфир Twitch.", 409)
-        current = self.helix("streams", {"user_id": channel})["data"]
-        if not current or current[0]["id"] != stream["stream"]:
-            raise Problem("Этот эфир уже завершён в Twitch.", 409)
-        result = self.helix("clips", {"broadcaster_id": channel, "duration": 30}, body={})["data"][0]
+            stream = db.execute(
+                "SELECT s.title, t.stream FROM sessions s JOIN twitch_streams t ON t.session_id=s.id "
+                "WHERE t.session_id=? AND t.channel=?", (sid, channel)
+            ).fetchone()
+        if not stream:
+            raise Problem("Выберите эфир подключённого канала Twitch.", 409)
+
+        vod = next((video for video in self.pages("videos", user_id=channel, type="archive", first=100)
+                    if video.get("stream_id") == stream["stream"]), None)
+        if vod is None:
+            raise Problem("Архив этого эфира ещё недоступен. Включите сохранение трансляций в Twitch и дождитесь появления записи.", 409)
+        match = re.fullmatch(r"(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?", vod.get("duration", ""))
+        if match and vod.get("duration"):
+            hours, minutes, seconds = (int(value or 0) for value in match.groups())
+            if end > hours * 3600 + minutes * 60 + seconds:
+                raise Problem("Конец клипа выходит за доступную часть архива Twitch. Подождите или укажите более ранний таймкод.", 409)
+        try:
+            result = self.helix("videos/clips", {
+                "broadcaster_id": channel, "editor_id": channel, "vod_id": vod["id"],
+                "vod_offset": end, "duration": end - start,
+                "title": title or stream["title"][:100] or "Момент эфира",
+            }, body={})["data"][0]
+        except TwitchError as exc:
+            if exc.upstream_status == 403:
+                raise Problem("Twitch запретил создание клипа. Проверьте настройки клипов канала.", 403) from None
+            if exc.upstream_status == 404:
+                raise Problem("Архив ещё недоступен для создания клипа на Twitch.", 409) from None
+            raise
         with self.store.connect(write=True) as db:
             db.execute("INSERT OR IGNORE INTO twitch_clips(id,session_id,created) VALUES (?,?,?)",
                        (result["id"], sid, time.time()))

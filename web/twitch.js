@@ -34,16 +34,11 @@ async function syncPanel() {
 }
 
 byId("sessions").addEventListener("change", () => { manualSelection = true; });
-byId("twitch-clip").addEventListener("click", run(async () => {
-  const button = byId("twitch-clip");
-  button.disabled = true;
-  try {
-    await action("twitchclip", {});
-    await refresh();
-  } finally {
-    button.disabled = false;
-  }
-}, "Twitch принял запрос. Клип появится после обработки."));
+
+form("twitch-clip-form", async data => {
+  await action("twitchclip", data);
+  return "Twitch принял запрос. Ссылка появится после обработки.";
+});
 
 window.addEventListener("DOMContentLoaded", () => {
   syncPanel();

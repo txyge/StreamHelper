@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 import publication
 import twitch_data as data
-from streams import Store
+from streams import Problem, Store
 from twitch import Twitch
 
 
@@ -31,12 +31,16 @@ class TwitchTest(unittest.TestCase):
             ),
             "moderation/moderators": {"data": [{"user_name": "Модератор"}]},
             "bits/leaderboard": {"data": [{"user_name": "Сова", "score": 200}]},
-            "videos": {"data": [{"id": "vod1", "stream_id": "TwitchStream1"}]},
+            "videos": {"data": [{"id": "vod1", "stream_id": "TwitchStream1", "duration": "1m30s"}]},
         }
+
+        if endpoint == "videos/clips":
+            self.assertEqual(body, {})
+            self.assertEqual(query, {"broadcaster_id":"owner", "editor_id":"owner", "vod_id":"vod1",
+                                    "vod_offset":45, "duration":30, "title":"Лучший момент"})
+            return {"data": [{"id": "new-clip"}]}
         if endpoint == "clips":
-            if body is not None:
-                self.assertEqual(query, {"broadcaster_id": "owner", "duration": 30})
-                return {"data": [{"id": "new-clip"}]}
+            self.assertIsNone(body)
             live_clip = {"id": "new-clip", "video_id": "vod1", "title": "Лучший момент",
                          "url": "https://clips.twitch.tv/NewClip", "created_at": data.iso(self.started + 45)}
             other = {**live_clip, "id": "old-clip", "video_id": "old", "title": "Чужой VOD"}
@@ -64,7 +68,9 @@ class TwitchTest(unittest.TestCase):
             self.event("channel.cheer", "bits1", {"user_id": "owl", "user_name": "Сова", "bits": 150})
             self.twitch.ready = True
             self.twitch.account = {"user_id": "owner"}
-            self.assertEqual(self.twitch.create_clip(1), {"id": "new-clip"})
+            self.assertEqual(self.twitch.create_clip(1, {
+                "start":"00:15", "end":"00:00:45", "title":"Лучший момент"
+            }), {"id": "new-clip"})
             self.event("stream.offline", "end", {}, elapsed=80)
             self.twitch.sync("owner")  # Helix still advertises this broadcast.
             with self.store.connect(write=True) as db:
@@ -84,6 +90,22 @@ class TwitchTest(unittest.TestCase):
             with Store(self.store.directory).connect() as db:
                 self.assertEqual(publication.latest(db), card)
                 self.assertEqual(publication.preview(db, 1)["active_chat"][0]["count"], 3)
+
+    def test_clip_rejects_bad_interval_and_missing_archive_without_creating(self):
+        with patch.object(self.twitch, "helix", side_effect=self.remote):
+            self.twitch.sync("owner")
+        self.twitch.ready = True
+        self.twitch.account = {"user_id": "owner"}
+        with patch.object(self.twitch, "helix", return_value={"data": []}) as api:
+            with self.assertRaisesRegex(Problem, "5–60"):
+                self.twitch.create_clip(1, {"start":"00:15", "end":"00:16"})
+            api.assert_not_called()
+            with self.assertRaisesRegex(Problem, "Архив"):
+                self.twitch.create_clip(1, {"start":"00:15", "end":"00:45"})
+            api.assert_called_once_with("videos", {"user_id":"owner", "type":"archive", "first":100})
+        with patch.object(self.twitch, "helix", side_effect=self.remote):
+            with self.assertRaisesRegex(Problem, "выходит"):
+                self.twitch.create_clip(1, {"start":"01:25", "end":"01:35"})
 
     def test_poll_recovery_requires_two_successful_offline_responses(self):
         with patch.object(self.twitch, "helix", side_effect=self.remote):

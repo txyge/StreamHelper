@@ -121,8 +121,7 @@ class Handler(BaseHTTPRequestHandler):
         if match:
             sid, action = int(match[1]), match[2]
             if method == "POST" and action == "twitchclip":
-                self.json_body()
-                self.send_json(self.server.twitch.create_clip(sid))
+                self.send_json(self.server.twitch.create_clip(sid, self.json_body()), 202)
                 return
             if method == "POST" and action == "recording":
                 self.send_json(media.upload(store, sid, self.rfile, self.length(media.MAX_UPLOAD),

@@ -10,7 +10,15 @@
 <form id="twitch-connect"><label>Client ID приложения Twitch <input name="client_id" required maxlength="80"></label>
 <button>Подключить Twitch</button></form>
 <p id="twitch-activation" hidden><a id="twitch-url" target="_blank" rel="noopener noreferrer">Подтвердить в Twitch</a> · Код <strong id="twitch-code"></strong></p>
-<button id="twitch-clip" type="button" hidden>Создать клип на Twitch</button>
+<div id="twitch-clip" hidden>
+<form id="twitch-clip-form">
+<label>Начало клипа <input name="start" required placeholder="00:15" maxlength="11"></label>
+<label>Конец клипа <input name="end" required placeholder="00:45" maxlength="11"></label>
+<label>Название клипа <input name="title" maxlength="100"></label>
+<button>Создать клип на Twitch</button>
+</form>
+<p class="muted">Укажите позиции в архиве Twitch в формате ММ:СС или ЧЧ:ММ:СС. Длительность от 5 до 60 секунд.</p>
+</div>
 </section>
 <section><h2>Сессия</h2>
 <form id="start"><label>Название <input name="title" maxlength="120" required></label><button>Начать демонстрационный эфир</button></form>

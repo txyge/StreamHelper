@@ -31,6 +31,17 @@ const probe = process.env.STREAMHELPER_FFPROBE || "ffprobe";
     await viewer.getByText("Итоги ещё не опубликованы.").waitFor();
     await page.goto(url);
     await page.getByText(/Сова · Как дела\? · Новый/).waitFor();
+    let clipRequest;
+    await page.route("**/api/sessions/1/twitchclip", async route => {
+      clipRequest = route.request().postDataJSON();
+      await route.fulfill({status:202, json:{id:"NewClip"}});
+    });
+    await page.getByLabel("Начало клипа").fill("00:15");
+    await page.getByLabel("Конец клипа").fill("00:45");
+    await page.getByLabel("Название клипа").fill("Победа");
+    await page.getByRole("button", {name:"Создать клип на Twitch"}).click();
+    await page.getByText("Twitch принял запрос. Ссылка появится после обработки.").waitFor();
+    assert.deepEqual(clipRequest, {start:"00:15", end:"00:45", title:"Победа"});
     assert.equal(await page.getByRole("heading", {name:"Антиспойлер"}).count(), 0);
     assert.equal(await page.getByRole("heading", {name:"Тестовый чат"}).isVisible(), false);
     await page.getByRole("button", {name:"Отметить отвеченным"}).click();
