@@ -1,6 +1,43 @@
 const byId = id => document.getElementById(id);
-let selected = null;
+const query = new URLSearchParams(location.search);
+const panelMode = {marks:"Таймкоды", questions:"Вопросы к стримеру"};
+const requestedPanel = query.get("panel");
+const popoutMode = Object.hasOwn(panelMode, requestedPanel) ? requestedPanel : null;
+const requestedSession = query.get("session");
+let selected = popoutMode && /^[0-9]+$/.test(requestedSession) ? requestedSession : null;
+
+if (popoutMode) {
+  document.body.dataset.panel = popoutMode;
+  byId("page-title").textContent = panelMode[popoutMode];
+  document.title = panelMode[popoutMode] + " · СтримПомощник";
+}
+
+const themeControl = byId("theme-choice");
+const themeKey = "streamhelper.theme";
+function setTheme(value) {
+  const theme = ["light", "dark"].includes(value) ? value : "system";
+  document.documentElement.dataset.theme = theme;
+  themeControl.value = theme;
+}
+try { setTheme(localStorage.getItem(themeKey)); } catch { setTheme("system"); }
+themeControl.addEventListener("change", () => {
+  setTheme(themeControl.value);
+  try { localStorage.setItem(themeKey, themeControl.value); } catch { /* Private storage is unavailable. */ }
+});
+window.addEventListener("storage", event => {
+  if (event.key === themeKey || event.key === null) setTheme(event.newValue);
+});
+
+for (const link of document.querySelectorAll("[data-popout]")) {
+  link.addEventListener("click", event => {
+    if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    window.open(link.href, "_blank", "popup,noopener,width=580,height=760");
+  });
+}
 let current = null;
+let sessionOptions = "";
+let questionSnapshot = "";
 
 async function request(path, data) {
   const options = data === undefined ? {} : {
@@ -70,13 +107,19 @@ function list(id, items, render, empty) {
 async function refresh(preferred = selected) {
   const sessions = await request("/api/sessions");
   const select = byId("sessions");
-  select.replaceChildren(option("", "Выберите эфир"), ...sessions.map(item =>
-    option(String(item.id), item.title + (item.ended === null ? " · в эфире" : " · завершён"))
-  ));
+
+  const snapshot = JSON.stringify(sessions);
+  if (snapshot !== sessionOptions) {
+    select.replaceChildren(option("", "Выберите эфир"), ...sessions.map(item =>
+      option(String(item.id), item.title + (item.ended === null ? " · в эфире" : " · завершён"))
+    ));
+    sessionOptions = snapshot;
+  }
   const activeSession = sessions.find(item => item.ended === null);
   byId("start").hidden = Boolean(activeSession);
   const latest = activeSession || sessions[0];
-  const target = preferred ?? (latest ? String(latest.id) : "");
+  const target = preferred === "" || sessions.some(item => String(item.id) === preferred)
+    ? preferred : (latest ? String(latest.id) : "");
   selected = target;
   select.value = target;
   const detail = target ? await request("/api/sessions/" + target) : null;
@@ -99,6 +142,9 @@ function render() {
     ? (current.session.ended === null ? "В эфире" : "Эфир завершён")
     : "Сессия не выбрана";
   for (const link of document.querySelectorAll("[data-session-link]")) link.hidden = !current;
+  for (const link of document.querySelectorAll("[data-popout]")) {
+    if (current) link.href = "/?panel=" + link.dataset.popout + "&session=" + current.session.id;
+  }
   renderSummary();
   if (!current) {
     return;
@@ -149,13 +195,30 @@ function itemButton(row, label, name, id) {
     await action(name, {id});
     await refresh();
   }));
-  row.append(" ", button);
+  row.append(button);
 }
 
 
 function renderChat() {
-  list("questions", current.questions, (row, item) => {
-    row.textContent = item.nick + " · " + item.body + " · " + (item.answered ? "Отвечен" : "Новый");
+
+  const snapshot = JSON.stringify([current.session.id, current.questions]);
+  if (snapshot === questionSnapshot) return;
+  questionSnapshot = snapshot;
+  const questions = [...current.questions].sort((a, b) => Number(a.answered) - Number(b.answered));
+  list("questions", questions, (row, item) => {
+    row.className = "question-card";
+    const meta = document.createElement("div");
+    meta.className = "question-meta";
+    const author = document.createElement("strong");
+    author.textContent = item.nick;
+    const state = document.createElement("span");
+    state.className = item.answered ? "question-state answered" : "question-state";
+    state.textContent = item.answered ? "Отвечен" : "Новый";
+    meta.append(author, state);
+    const text = document.createElement("p");
+    text.className = "question-text";
+    text.textContent = item.body;
+    row.append(meta, text);
     if (!item.answered) itemButton(row, "Отметить отвеченным", "answer", item.id);
   }, "Вопросов пока нет.");
 }

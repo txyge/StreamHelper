@@ -60,7 +60,7 @@ byId("copy-summary-url").addEventListener("click", run(async () => {
 }));
 
 let polling = false;
-let chosenSession = false;
+let chosenSession = popoutMode && selected !== null;
 byId("sessions").addEventListener("change", () => { chosenSession = true; });
 async function poll() {
   if (polling) return;
