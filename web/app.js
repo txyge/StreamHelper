@@ -89,7 +89,7 @@ function date(seconds) {
 function render() {
   byId("session").hidden = !current;
   byId("summary").hidden = !current;
-  byId("chat").hidden = !current;
+  byId("chat").hidden = current?.card.source !== "twitch";
   renderMedia();
   renderPublication();
   if (!current) {
@@ -142,22 +142,10 @@ function itemButton(row, label, name, id) {
   row.append(" ", button);
 }
 
-function renderChat() {
 
-  const {session, messages, questions, card} = current;
-  byId("demo-chat").hidden = card.source === "twitch";
-  byId("message").hidden = session.ended !== null;
-  list("messages", messages, (row, item) => {
-    row.textContent = item.nick + " · " + item.body;
-  }, "Сообщений пока нет.");
-  list("questions", questions, (row, item) => {
+function renderChat() {
+  list("questions", current.questions, (row, item) => {
     row.textContent = item.nick + " · " + item.body + " · " + (item.answered ? "Отвечен" : "Новый");
     if (!item.answered) itemButton(row, "Отметить отвеченным", "answer", item.id);
   }, "Вопросов пока нет.");
 }
-
-form("message", async data => {
-  await action("message", data);
-  byId("message").elements.body.value = "";
-  await refresh();
-});

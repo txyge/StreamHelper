@@ -26,7 +26,7 @@ STATIC = {
 }
 ACTIONS = {
     "finish": streams.finish, "marks": streams.mark,
-    "message": chat.message, "answer": chat.answer, "publish": publication.publish,
+    "answer": chat.answer, "publish": publication.publish,
 }
 
 
@@ -139,7 +139,7 @@ class Handler(BaseHTTPRequestHandler):
             if method == "POST" and action in ACTIONS:
                 data = self.json_body()
                 with store.connect(write=True) as db:
-                    if action in {"finish", "message"} and db.execute(
+                    if action == "finish" and db.execute(
                         "SELECT 1 FROM twitch_streams WHERE session_id=?", (sid,)
                     ).fetchone():
                         raise Problem("Эта сессия управляется Twitch.", 409)

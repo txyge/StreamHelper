@@ -1,5 +1,5 @@
-"""Очередь вопросов из Twitch и автономного демонстрационного чата."""
-from streams import Problem, field, rows, session
+"""Очередь вопросов из Twitch."""
+from streams import Problem, rows
 
 
 def question_text(body):
@@ -18,16 +18,6 @@ def add_question(db, sid, message_id, nick, body):
         )
 
 
-def message(db, sid, data):
-    session(db, sid, live=True)
-    nick = field(data, "nick", 40)
-    body = field(data, "body", 500)
-    mid = db.execute("INSERT INTO messages(session_id,nick,body) VALUES (?,?,?)",
-                     (sid, nick, body)).lastrowid
-    add_question(db, sid, mid, nick, body)
-    return {"id": mid}
-
-
 def answer(db, sid, data):
     qid = data.get("id")
     if type(qid) is not int or not 1 <= qid <= 2**63 - 1:
@@ -41,7 +31,5 @@ def answer(db, sid, data):
 
 def detail(db, sid):
     return {
-        "messages": rows(db, "SELECT id,nick,body FROM messages WHERE session_id=? "
-                         "AND (rule IS NULL OR restored=1) ORDER BY id", sid),
         "questions": rows(db, "SELECT * FROM questions WHERE session_id=? ORDER BY id", sid),
     }

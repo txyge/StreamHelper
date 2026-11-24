@@ -60,11 +60,14 @@ const probe = process.env.STREAMHELPER_FFPROBE || "ffprobe";
 
     await page.getByLabel("Название", {exact:true}).fill("Демонстрация");
     await page.getByRole("button", {name:"Начать демонстрационный эфир"}).click();
-    await page.getByRole("heading", {name:"Тестовый чат"}).waitFor();
-    await page.getByLabel("Ник", {exact:true}).fill("Тест");
-    await page.getByLabel("Сообщение", {exact:true}).fill("!вопрос Что дальше?");
-    await page.getByRole("button", {name:"Отправить"}).click();
-    await page.getByText(/Тест · Что дальше\? · Новый/).waitFor();
+
+    await page.getByRole("heading", {name:"Запись и клипы"}).waitFor();
+    assert.equal(await page.getByRole("heading", {name:"Тестовый чат"}).count(), 0);
+    assert.equal(await page.getByRole("heading", {name:"Вопросы Twitch"}).isVisible(), false);
+    const removed = await fetch(url + "/api/sessions/2/message", {
+      method:"POST", headers:{"Content-Type":"application/json"}, body:"{}"
+    });
+    assert.equal(removed.status, 404);
     await page.getByRole("button", {name:"Загрузить деморолик"}).click();
     await page.waitForFunction(() => document.getElementById("recording-video").readyState >= 2);
     await page.getByLabel("Позиция в записи, с").fill("45");
@@ -87,7 +90,7 @@ const probe = process.env.STREAMHELPER_FFPROBE || "ffprobe";
     await page.getByText("Клавиша: K.", {exact:false}).waitFor();
     await page.getByRole("button", {name:"Сбросить клавишу"}).click();
     await page.getByText("Клавиша не назначена.", {exact:false}).waitFor();
-    console.log("PASS offline demo: questions, 17-second FFmpeg clip via saved shortcut, and shortcut reset");
+    console.log("PASS offline demo: 17-second FFmpeg clip via saved shortcut, and shortcut reset");
   } finally {
     if (browser) await browser.close();
     if (app.exitCode === null) await new Promise(resolve => {
