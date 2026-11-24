@@ -58,7 +58,7 @@ const probe = process.env.STREAMHELPER_FFPROBE || "ffprobe";
     assert.equal(snapshot.questions, undefined);
     console.log("PASS Twitch fixture: questions, automated summary, categories, audience, Bits and clip in viewer tab");
 
-    await page.getByLabel("Название").fill("Демонстрация");
+    await page.getByLabel("Название", {exact:true}).fill("Демонстрация");
     await page.getByRole("button", {name:"Начать демонстрационный эфир"}).click();
     await page.getByRole("heading", {name:"Тестовый чат"}).waitFor();
     await page.getByLabel("Ник", {exact:true}).fill("Тест");
