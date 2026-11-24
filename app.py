@@ -4,6 +4,7 @@ import json
 import re
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
+import chat
 import streams
 from streams import Problem, ROOT, Store
 
@@ -12,7 +13,11 @@ STATIC = {
     "/app.js": ("app.js", "text/javascript"),
     "/style.css": ("style.css", "text/css"),
 }
-ACTIONS = {"finish": streams.finish, "marks": streams.mark}
+ACTIONS = {
+    "finish": streams.finish, "marks": streams.mark,
+    "message": chat.message, "restore": chat.restore,
+    "answer": chat.answer, "rules": chat.settings,
+}
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -37,7 +42,7 @@ class Handler(BaseHTTPRequestHandler):
         except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
             return
         except Exception:
-            self.log_error("Ошибка запроса", exc_info=False) if False else report_error()
+            report_error()
             self.send_json({"error": "Внутренняя ошибка сервера."}, 500)
 
     def send_json(self, value, status=200):
@@ -93,7 +98,7 @@ class Handler(BaseHTTPRequestHandler):
             sid, action = int(match[1]), match[2]
             if method == "GET" and action is None:
                 with store.connect() as db:
-                    result = streams.detail(db, sid)
+                    result = {**streams.detail(db, sid), **chat.detail(db, sid)}
                 self.send_json(result)
                 return
             if method == "POST" and action in ACTIONS:

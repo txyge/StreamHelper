@@ -12,4 +12,17 @@
 <label>Приватная заметка <input name="note" maxlength="500"></label><button>Поставить таймкод</button></form></div>
 </section>
 <section id="summary" hidden><h2 id="summary-title">Таймкоды</h2><p id="duration"></p><ul id="marks"></ul></section>
+<div id="chat" class="grid" hidden>
+<section><h2>Тестовый чат</h2>
+<form id="message"><label>Ник <input name="nick" required maxlength="40"></label>
+<label>Сообщение <input name="body" required maxlength="500" placeholder="!вопрос Как прошёл эфир?"></label>
+<button>Отправить</button></form>
+<ul id="messages"></ul></section>
+<section><h2>Антиспойлер</h2>
+<form id="rules"><label>Игра <input name="game" required maxlength="100"></label>
+<label>Фразы, по одной на строку <textarea name="phrases" maxlength="3000" rows="3"></textarea></label>
+<button>Сохранить правила</button></form>
+<p id="hidden-count"></p><ul id="hidden-messages"></ul></section>
+<section><h2>Вопросы</h2><ul id="questions"></ul></section>
+</div>
 </main></body></html>

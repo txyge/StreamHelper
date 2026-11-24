@@ -94,7 +94,9 @@ function date(seconds) {
 function render() {
   byId("session").hidden = !current;
   byId("summary").hidden = !current;
+  byId("chat").hidden = !current;
   if (!current) return;
+  renderChat();
   const {session, duration, marks} = current;
   const live = session.ended === null;
   byId("session-info").textContent = session.title + " · Начало " + date(session.started)
@@ -127,4 +129,50 @@ byId("sessions").addEventListener("change", run(async event => {
   selected = event.target.value;
   await refresh();
 }));
+function itemButton(row, label, name, id) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.textContent = label;
+  button.addEventListener("click", run(async () => {
+    await action(name, {id});
+    await refresh();
+  }));
+  row.append(" ", button);
+}
+
+let rulesSession = null;
+function renderChat() {
+  const {session, messages, hidden, flagged_count, questions, settings} = current;
+  const live = session.ended === null;
+  byId("message").hidden = !live;
+  byId("rules").hidden = !live;
+  if (rulesSession !== session.id) {
+    rulesSession = session.id;
+    byId("rules").elements.game.value = settings.game;
+    byId("rules").elements.phrases.value = settings.phrases.join("\n");
+  }
+  byId("hidden-count").textContent = "Сейчас скрыто " + hidden.length + " · Всего срабатываний " + flagged_count;
+  list("messages", messages, (row, item) => {
+    row.textContent = item.nick + " · " + item.body;
+  }, "Сообщений пока нет.");
+  list("hidden-messages", hidden, (row, item) => {
+    row.textContent = item.nick + " · " + item.body + " · Правило «" + item.rule + "»";
+    itemButton(row, "Восстановить", "restore", item.id);
+  }, "Очередь проверки пуста.");
+  list("questions", questions, (row, item) => {
+    row.textContent = item.nick + " · " + item.body + " · " + (item.answered ? "Отвечен" : "Новый");
+    if (!item.answered) itemButton(row, "Отметить отвеченным", "answer", item.id);
+  }, "Вопросов пока нет.");
+}
+
+form("message", async data => {
+  await action("message", data);
+  byId("message").elements.body.value = "";
+  await refresh();
+});
+form("rules", async data => {
+  await action("rules", data);
+  rulesSession = null;
+  await refresh();
+});
 run(refresh)();
