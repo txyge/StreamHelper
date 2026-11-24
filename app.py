@@ -7,7 +7,6 @@ from urllib.parse import urlsplit
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import chat
-import media
 import publication
 import streams
 from twitch import Twitch
@@ -101,7 +100,7 @@ class Handler(BaseHTTPRequestHandler):
                 card = publication.latest(db)
             self.send_json(card)
             return
-        if method == "GET" and self.find_media(path):
+        if method == "GET" and self.find_clip(path):
             return
         if method == "GET" and path in STATIC:
             name, mime = STATIC[path]
@@ -123,17 +122,10 @@ class Handler(BaseHTTPRequestHandler):
             if method == "POST" and action == "twitchclip":
                 self.send_json(self.server.twitch.create_clip(sid, self.json_body()), 202)
                 return
-            if method == "POST" and action == "recording":
-                self.send_json(media.upload(store, sid, self.rfile, self.length(media.MAX_UPLOAD),
-                                            self.headers.get_content_type()))
-                return
-            if method == "POST" and action == "clips":
-                self.send_json(media.export(store, sid, self.json_body()))
-                return
             if method == "GET" and action is None:
                 with store.connect() as db:
                     result = {**streams.detail(db, sid), **chat.detail(db, sid),
-                              **media.detail(db, sid), "card": publication.preview(db, sid)}
+                              "card": publication.preview(db, sid)}
                 self.send_json(result)
                 return
             if method == "POST" and action in ACTIONS:
@@ -148,25 +140,17 @@ class Handler(BaseHTTPRequestHandler):
                 return
         raise Problem("Страница не найдена.", 404)
 
-    def find_media(self, path):
-        store = self.server.store
-        if path == "/demo.mp4":
-            self.send_file(ROOT / "demo" / "demo.mp4", "video/mp4")
-            return True
-        match = re.fullmatch(r"/(recordings|clips)/([0-9a-f]{32})", path)
+    def find_clip(self, path):
+        match = re.fullmatch(r"/clips/([0-9a-f]{32})", path)
         if not match:
             return False
-        kind, key = match.groups()
+        key = match[1]
+        store = self.server.store
         with store.connect() as db:
-            query = "SELECT mime FROM recordings WHERE id=?" if kind == "recordings" else (
-                "SELECT 'video/mp4' AS mime FROM clips WHERE id=?"
-            )
-            row = db.execute(query, (key,)).fetchone()
-        if not row:
-            raise Problem("Видео не найдено.", 404)
-        name = key if kind == "recordings" else key + ".mp4"
+            if not db.execute("SELECT 1 FROM clips WHERE id=?", (key,)).fetchone():
+                raise Problem("Видео не найдено.", 404)
         download = "clip-" + key[:8] + ".mp4" if urlsplit(self.path).query == "download=1" else None
-        self.send_file(media.file_path(store, kind, name), row["mime"], download)
+        self.send_file(store.directory / "clips" / (key + ".mp4"), "video/mp4", download)
         return True
 
     def send_file(self, path, mime, download=None):

@@ -35,11 +35,6 @@ async function syncPanel() {
 
 byId("sessions").addEventListener("change", () => { manualSelection = true; });
 
-form("twitch-clip-form", async data => {
-  await action("twitchclip", data);
-  return "Twitch принял запрос. Ссылка появится после обработки.";
-});
-
 window.addEventListener("DOMContentLoaded", () => {
   syncPanel();
   setInterval(syncPanel, 3500);

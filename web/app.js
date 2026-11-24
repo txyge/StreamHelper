@@ -90,10 +90,8 @@ function render() {
   byId("session").hidden = !current;
   byId("summary").hidden = !current;
   byId("chat").hidden = current?.card.source !== "twitch";
-  renderMedia();
   renderPublication();
   if (!current) {
-    byId("twitch-clip").hidden = true;
     return;
   }
   renderChat();
@@ -103,7 +101,6 @@ function render() {
     + (live ? "" : " · Завершение " + date(session.ended));
   const twitch = current.card.source === "twitch";
   byId("finish").hidden = !live || twitch;
-  byId("twitch-clip").hidden = !twitch;
   byId("mark").hidden = !live;
   byId("summary-title").textContent = live ? "Таймкоды" : "Личные итоги";
   byId("duration").textContent = (live ? "От начала эфира " : "Длительность ") + time(duration);

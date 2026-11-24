@@ -10,15 +10,6 @@
 <form id="twitch-connect"><label>Client ID приложения Twitch <input name="client_id" required maxlength="80"></label>
 <button>Подключить Twitch</button></form>
 <p id="twitch-activation" hidden><a id="twitch-url" target="_blank" rel="noopener noreferrer">Подтвердить в Twitch</a> · Код <strong id="twitch-code"></strong></p>
-<div id="twitch-clip" hidden>
-<form id="twitch-clip-form">
-<label>Начало клипа <input name="start" required placeholder="00:15" maxlength="11"></label>
-<label>Конец клипа <input name="end" required placeholder="00:45" maxlength="11"></label>
-<label>Название клипа <input name="title" maxlength="100"></label>
-<button>Создать клип на Twitch</button>
-</form>
-<p class="muted">Укажите позиции в архиве Twitch в формате ММ:СС или ЧЧ:ММ:СС. Длительность от 5 до 60 секунд.</p>
-</div>
 </section>
 <section><h2>Сессия</h2>
 <form id="start"><label>Название <input name="title" maxlength="120" required></label><button>Начать демонстрационный эфир</button></form>
@@ -28,26 +19,17 @@
 <label>Приватная заметка <input name="note" maxlength="500"></label><button>Поставить таймкод</button></form></div>
 </section>
 <section id="summary" hidden><h2 id="summary-title">Таймкоды</h2><p id="duration"></p><ul id="marks"></ul></section>
-<section id="media" hidden><h2>Запись и клипы</h2>
-<div class="media-layout"><div>
-<label>Локальная запись (MP4 или WebM) <input id="recording-file" type="file" accept=".mp4,.webm"></label>
-<button id="load-demo" type="button">Загрузить деморолик</button>
-<video id="recording-video" controls preload="metadata" playsinline aria-label="Запись эфира"></video>
-<form id="seek"><label>Позиция в записи, с <input name="seconds" type="number" step="any" min="0" required></label>
-<button>Перейти</button></form>
-<p class="muted">Позиция в записи отсчитывается отдельно от таймкодов эфира.</p>
-
-<div class="actions">
-<label>Длительность клипа, с <input id="clip-duration" type="number" min="1" max="300" step="1" value="30" required></label>
-<button id="save-clip" type="button">Сохранить клип</button>
-</div>
+<section id="media"><h2>Клип из эфира Twitch</h2>
+<form id="clip-form">
+<label>Длительность клипа, с <input name="duration" type="number" min="5" max="60" step="1" value="30" required></label>
+<button id="save-clip" type="submit">Создать клип на Twitch</button>
+</form>
 <div class="actions">
 <button id="clip-hotkey" type="button">Назначить клавишу</button>
 <button id="clear-clip-hotkey" type="button" hidden>Сбросить клавишу</button>
 </div>
-<p id="clip-hotkey-status" class="muted" role="status">Клавиша не назначена. Она работает, пока панель в фокусе.</p>
-</div>
-<div><h3>Сохранённые клипы</h3><ul id="clips"></ul></div></div></section>
+<p id="clip-hotkey-status" class="muted" role="status"></p>
+</section>
 <section id="chat" hidden><h2>Вопросы Twitch</h2><ul id="questions"></ul></section>
 <section id="publication" hidden><h2>Итоги для зрителей</h2>
 
