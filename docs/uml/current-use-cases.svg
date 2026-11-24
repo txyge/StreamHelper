@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1060" height="575" viewBox="0 0 1060 575" role="img">
+  <title>StreamHelper · варианты использования</title>
+  <rect x="0" y="0" width="1060" height="575" fill="#ffffff" stroke="#ffffff" stroke-width="1.5" />
+  <text x="530.0" y="34" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="23" font-weight="700">StreamHelper · варианты использования</text>
+  <rect x="195" y="62" width="670" height="465" fill="#faf7ff" stroke="#62518a" stroke-width="1.5" />
+  <text x="530" y="91" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Локальная панель StreamHelper</text>
+  <line x1="133" y1="212" x2="315" y2="130" stroke="#62518a" stroke-width="1.4" />
+  <ellipse cx="530.0" cy="130.0" rx="215.0" ry="23.0" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="530" y="135" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Выбрать, начать или завершить сессию</text>
+  <line x1="133" y1="212" x2="315" y2="198" stroke="#62518a" stroke-width="1.4" />
+  <ellipse cx="530.0" cy="198.0" rx="215.0" ry="23.0" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="530" y="203" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Сохранить таймкод и заметку</text>
+  <line x1="133" y1="212" x2="315" y2="266" stroke="#62518a" stroke-width="1.4" />
+  <ellipse cx="530.0" cy="266.0" rx="215.0" ry="23.0" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="530" y="271" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Посмотреть вопрос и отметить ответ</text>
+  <line x1="133" y1="212" x2="315" y2="334" stroke="#62518a" stroke-width="1.4" />
+  <ellipse cx="530.0" cy="334.0" rx="215.0" ry="23.0" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="530" y="339" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Просмотреть итог и выгрузить JSON / TXT</text>
+  <line x1="745" y1="402" x2="925" y2="402" stroke="#62518a" stroke-width="1.4" />
+  <ellipse cx="530.0" cy="402.0" rx="215.0" ry="23.0" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="530" y="407" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Получить события эфира и чата</text>
+  <line x1="745" y1="470" x2="925" y2="470" stroke="#62518a" stroke-width="1.4" />
+  <ellipse cx="530.0" cy="470.0" rx="215.0" ry="23.0" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="530" y="475" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Авторизоваться и загрузить историю донатов</text>
+  <ellipse cx="108.0" cy="195.0" rx="9.0" ry="9.0" fill="#ffffff" stroke="#62518a" stroke-width="1.5" />
+  <line x1="108" y1="204" x2="108" y2="234" stroke="#62518a" stroke-width="1.4" />
+  <line x1="89" y1="212" x2="127" y2="212" stroke="#62518a" stroke-width="1.4" />
+  <line x1="108" y1="234" x2="92" y2="253" stroke="#62518a" stroke-width="1.4" />
+  <line x1="108" y1="234" x2="124" y2="253" stroke="#62518a" stroke-width="1.4" />
+  <text x="108" y="274" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Стример</text>
+  <rect x="925" y="384" width="112" height="36" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="981" y="406" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="400">Streamer.bot</text>
+  <rect x="925" y="452" width="112" height="36" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="981" y="474" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="400">DonationAlerts</text>
+</svg>

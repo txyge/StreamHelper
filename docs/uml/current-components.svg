@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="550" viewBox="0 0 1100 550" role="img">
+  <title>StreamHelper · компоненты и данные</title>
+  <rect x="0" y="0" width="1100" height="550" fill="#ffffff" stroke="#ffffff" stroke-width="1.5" />
+  <text x="550.0" y="34" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="23" font-weight="700">StreamHelper · компоненты и данные</text>
+  <rect x="32" y="85" width="195" height="70" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="129.5" y="111" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Панель в браузере</text>
+  <text x="129.5" y="134" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="400">Эфир, вопросы и экспорт</text>
+  <rect x="294" y="85" width="215" height="70" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="401.5" y="111" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">app.py</text>
+  <text x="401.5" y="134" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="400">Локальный HTTP API</text>
+  <rect x="610" y="85" width="227" height="70" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="723.5" y="111" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">summary.py</text>
+  <text x="723.5" y="134" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="400">Чтение сводки</text>
+  <rect x="294" y="216" width="215" height="70" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="401.5" y="242" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">streams.py + chat.py</text>
+  <text x="401.5" y="265" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="400">Сессии, отметки и вопросы</text>
+  <rect x="32" y="350" width="195" height="70" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="129.5" y="376" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Streamer.bot</text>
+  <text x="129.5" y="399" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="400">WebSocket · Twitch</text>
+  <rect x="294" y="350" width="215" height="70" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="401.5" y="376" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">streamerbot.py</text>
+  <text x="401.5" y="399" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="400">Приём событий</text>
+  <rect x="885" y="350" width="190" height="70" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="980.0" y="376" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">DonationAlerts</text>
+  <text x="980.0" y="399" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="400">HTTPS · OAuth и платежи</text>
+  <rect x="610" y="350" width="227" height="70" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="723.5" y="376" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">donations.py</text>
+  <text x="723.5" y="399" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="400">Отбор платежей по эфиру</text>
+  <rect x="382" y="459" width="365" height="70" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="564.5" y="485" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">SQLite</text>
+  <text x="564.5" y="508" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="400">Сессии, отметки, вопросы, темы, зрители, донаты</text>
+  <line x1="227" y1="120" x2="294" y2="120" stroke="#62518a" stroke-width="1.4" />
+  <polygon points="294,120 285.0,124.0 285.0,116.0" fill="#62518a" />
+  <line x1="509" y1="120" x2="610" y2="120" stroke="#62518a" stroke-width="1.4" />
+  <polygon points="610,120 601.0,124.0 601.0,116.0" fill="#62518a" />
+  <line x1="402" y1="155" x2="402" y2="216" stroke="#62518a" stroke-width="1.4" />
+  <polygon points="402,216 398.0,207.0 406.0,207.0" fill="#62518a" />
+  <line x1="227" y1="385" x2="294" y2="385" stroke="#62518a" stroke-width="1.4" />
+  <polygon points="294,385 285.0,389.0 285.0,381.0" fill="#62518a" />
+  <line x1="837" y1="385" x2="885" y2="385" stroke="#62518a" stroke-width="1.4" />
+  <polygon points="885,385 876.0,389.0 876.0,381.0" fill="#62518a" />
+  <line x1="509" y1="246" x2="560" y2="246" stroke="#62518a" stroke-width="1.4" />
+  <line x1="560" y1="246" x2="560" y2="459" stroke="#62518a" stroke-width="1.4" />
+  <polygon points="560,459 556.0,450.0 564.0,450.0" fill="#62518a" />
+  <line x1="447" y1="420" x2="447" y2="459" stroke="#62518a" stroke-width="1.4" />
+  <polygon points="447,459 443.0,450.0 451.0,450.0" fill="#62518a" />
+  <line x1="699" y1="420" x2="699" y2="459" stroke="#62518a" stroke-width="1.4" />
+  <polygon points="699,459 695.0,450.0 703.0,450.0" fill="#62518a" />
+  <line x1="724" y1="155" x2="724" y2="321" stroke="#62518a" stroke-width="1.4" />
+  <line x1="724" y1="321" x2="856" y2="321" stroke="#62518a" stroke-width="1.4" />
+  <line x1="856" y1="321" x2="856" y2="491" stroke="#62518a" stroke-width="1.4" />
+  <line x1="856" y1="491" x2="747" y2="491" stroke="#62518a" stroke-width="1.4" />
+  <polygon points="747,491 756.0,487.0 756.0,495.0" fill="#62518a" />
+  <line x1="480" y1="155" x2="480" y2="180" stroke="#62518a" stroke-width="1.4" />
+  <line x1="480" y1="180" x2="645" y2="180" stroke="#62518a" stroke-width="1.4" />
+  <line x1="645" y1="180" x2="645" y2="350" stroke="#62518a" stroke-width="1.4" />
+  <polygon points="645,350 641.0,341.0 649.0,341.0" fill="#62518a" />
+</svg>

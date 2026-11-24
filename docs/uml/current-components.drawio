@@ -1,0 +1,194 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net">
+  <diagram name="StreamHelper · компоненты и данные">
+    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1100" pageHeight="550">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" parent="1" style="fillColor=#ffffff;strokeColor=#ffffff;strokeWidth=1.5;" value="" vertex="1">
+          <mxGeometry x="0" y="0" width="1100" height="550" as="geometry" />
+        </mxCell>
+        <mxCell id="3" parent="1" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontColor=#241b36;fontSize=23;fontStyle=1;" value="StreamHelper · компоненты и данные" vertex="1">
+          <mxGeometry x="303.66999999999996" y="11" width="492.66" height="27" as="geometry" />
+        </mxCell>
+        <mxCell id="4" parent="1" style="fillColor=#f3edff;strokeColor=#62518a;strokeWidth=1.5;" value="" vertex="1">
+          <mxGeometry x="32" y="85" width="195" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="5" parent="1" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontColor=#241b36;fontSize=15;fontStyle=1;" value="Панель в браузере" vertex="1">
+          <mxGeometry x="49.175" y="96" width="160.65" height="19" as="geometry" />
+        </mxCell>
+        <mxCell id="6" parent="1" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontColor=#241b36;fontSize=13;fontStyle=0;" value="Эфир, вопросы и экспорт" vertex="1">
+          <mxGeometry x="35.315" y="121" width="188.37" height="17" as="geometry" />
+        </mxCell>
+        <mxCell id="7" parent="1" style="fillColor=#f3edff;strokeColor=#62518a;strokeWidth=1.5;" value="" vertex="1">
+          <mxGeometry x="294" y="85" width="215" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="8" parent="1" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontColor=#241b36;fontSize=15;fontStyle=1;" value="app.py" vertex="1">
+          <mxGeometry x="373.15" y="96" width="56.7" height="19" as="geometry" />
+        </mxCell>
+        <mxCell id="9" parent="1" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontColor=#241b36;fontSize=13;fontStyle=0;" value="Локальный HTTP API" vertex="1">
+          <mxGeometry x="327.79" y="121" width="147.42" height="17" as="geometry" />
+        </mxCell>
+        <mxCell id="10" parent="1" style="fillColor=#f3edff;strokeColor=#62518a;strokeWidth=1.5;" value="" vertex="1">
+          <mxGeometry x="610" y="85" width="227" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="11" parent="1" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontColor=#241b36;fontSize=15;fontStyle=1;" value="summary.py" vertex="1">
+          <mxGeometry x="676.25" y="96" width="94.5" height="19" as="geometry" />
+        </mxCell>
+        <mxCell id="12" parent="1" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontColor=#241b36;fontSize=13;fontStyle=0;" value="Чтение сводки" vertex="1">
+          <mxGeometry x="670.265" y="121" width="106.47" height="17" as="geometry" />
+        </mxCell>
+        <mxCell id="13" parent="1" style="fillColor=#f3edff;strokeColor=#62518a;strokeWidth=1.5;" value="" vertex="1">
+          <mxGeometry x="294" y="216" width="215" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="14" parent="1" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontColor=#241b36;fontSize=15;fontStyle=1;" value="streams.py + chat.py" vertex="1">
+          <mxGeometry x="307.0" y="227" width="189.0" height="19" as="geometry" />
+        </mxCell>
+        <mxCell id="15" parent="1" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontColor=#241b36;fontSize=13;fontStyle=0;" value="Сессии, отметки и вопросы" vertex="1">
+          <mxGeometry x="299.125" y="252" width="204.75" height="17" as="geometry" />
+        </mxCell>
+        <mxCell id="16" parent="1" style="fillColor=#f3edff;strokeColor=#62518a;strokeWidth=1.5;" value="" vertex="1">
+          <mxGeometry x="32" y="350" width="195" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="17" parent="1" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontColor=#241b36;fontSize=15;fontStyle=1;" value="Streamer.bot" vertex="1">
+          <mxGeometry x="72.8" y="361" width="113.4" height="19" as="geometry" />
+        </mxCell>
+        <mxCell id="18" parent="1" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontColor=#241b36;fontSize=13;fontStyle=0;" value="WebSocket · Twitch" vertex="1">
+          <mxGeometry x="55.790000000000006" y="386" width="147.42" height="17" as="geometry" />
+        </mxCell>
+        <mxCell id="19" parent="1" style="fillColor=#f3edff;strokeColor=#62518a;strokeWidth=1.5;" value="" vertex="1">
+          <mxGeometry x="294" y="350" width="215" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="20" parent="1" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontColor=#241b36;fontSize=15;fontStyle=1;" value="streamerbot.py" vertex="1">
+          <mxGeometry x="335.35" y="361" width="132.3" height="19" as="geometry" />
+        </mxCell>
+        <mxCell id="21" parent="1" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontColor=#241b36;fontSize=13;fontStyle=0;" value="Приём событий" vertex="1">
+          <mxGeometry x="348.265" y="386" width="106.47" height="17" as="geometry" />
+        </mxCell>
+        <mxCell id="22" parent="1" style="fillColor=#f3edff;strokeColor=#62518a;strokeWidth=1.5;" value="" vertex="1">
+          <mxGeometry x="885" y="350" width="190" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="23" parent="1" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontColor=#241b36;fontSize=15;fontStyle=1;" value="DonationAlerts" vertex="1">
+          <mxGeometry x="913.85" y="361" width="132.3" height="19" as="geometry" />
+        </mxCell>
+        <mxCell id="24" parent="1" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontColor=#241b36;fontSize=13;fontStyle=0;" value="HTTPS · OAuth и платежи" vertex="1">
+          <mxGeometry x="885.815" y="386" width="188.37" height="17" as="geometry" />
+        </mxCell>
+        <mxCell id="25" parent="1" style="fillColor=#f3edff;strokeColor=#62518a;strokeWidth=1.5;" value="" vertex="1">
+          <mxGeometry x="610" y="350" width="227" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="26" parent="1" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontColor=#241b36;fontSize=15;fontStyle=1;" value="donations.py" vertex="1">
+          <mxGeometry x="666.8" y="361" width="113.4" height="19" as="geometry" />
+        </mxCell>
+        <mxCell id="27" parent="1" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontColor=#241b36;fontSize=13;fontStyle=0;" value="Отбор платежей по эфиру" vertex="1">
+          <mxGeometry x="629.315" y="386" width="188.37" height="17" as="geometry" />
+        </mxCell>
+        <mxCell id="28" parent="1" style="fillColor=#f3edff;strokeColor=#62518a;strokeWidth=1.5;" value="" vertex="1">
+          <mxGeometry x="382" y="459" width="365" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="29" parent="1" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontColor=#241b36;fontSize=15;fontStyle=1;" value="SQLite" vertex="1">
+          <mxGeometry x="536.15" y="470" width="56.7" height="19" as="geometry" />
+        </mxCell>
+        <mxCell id="30" parent="1" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontColor=#241b36;fontSize=13;fontStyle=0;" value="Сессии, отметки, вопросы, темы, зрители, донаты" vertex="1">
+          <mxGeometry x="372.03499999999997" y="495" width="384.93" height="17" as="geometry" />
+        </mxCell>
+        <mxCell id="31" parent="1" style="edgeStyle=none;strokeColor=#62518a;strokeWidth=1.4;endArrow=block;" value="" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="227" y="120" as="sourcePoint" />
+            <mxPoint x="294" y="120" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="32" parent="1" style="edgeStyle=none;strokeColor=#62518a;strokeWidth=1.4;endArrow=block;" value="" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="509" y="120" as="sourcePoint" />
+            <mxPoint x="610" y="120" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="33" parent="1" style="edgeStyle=none;strokeColor=#62518a;strokeWidth=1.4;endArrow=block;" value="" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="402" y="155" as="sourcePoint" />
+            <mxPoint x="402" y="216" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="34" parent="1" style="edgeStyle=none;strokeColor=#62518a;strokeWidth=1.4;endArrow=block;" value="" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="227" y="385" as="sourcePoint" />
+            <mxPoint x="294" y="385" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="35" parent="1" style="edgeStyle=none;strokeColor=#62518a;strokeWidth=1.4;endArrow=block;" value="" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="837" y="385" as="sourcePoint" />
+            <mxPoint x="885" y="385" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="36" parent="1" style="edgeStyle=none;strokeColor=#62518a;strokeWidth=1.4;endArrow=none;" value="" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="509" y="246" as="sourcePoint" />
+            <mxPoint x="560" y="246" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="37" parent="1" style="edgeStyle=none;strokeColor=#62518a;strokeWidth=1.4;endArrow=block;" value="" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="560" y="246" as="sourcePoint" />
+            <mxPoint x="560" y="459" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="38" parent="1" style="edgeStyle=none;strokeColor=#62518a;strokeWidth=1.4;endArrow=block;" value="" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="447" y="420" as="sourcePoint" />
+            <mxPoint x="447" y="459" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="39" parent="1" style="edgeStyle=none;strokeColor=#62518a;strokeWidth=1.4;endArrow=block;" value="" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="699" y="420" as="sourcePoint" />
+            <mxPoint x="699" y="459" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="40" parent="1" style="edgeStyle=none;strokeColor=#62518a;strokeWidth=1.4;endArrow=none;" value="" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="724" y="155" as="sourcePoint" />
+            <mxPoint x="724" y="321" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="41" parent="1" style="edgeStyle=none;strokeColor=#62518a;strokeWidth=1.4;endArrow=none;" value="" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="724" y="321" as="sourcePoint" />
+            <mxPoint x="856" y="321" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="42" parent="1" style="edgeStyle=none;strokeColor=#62518a;strokeWidth=1.4;endArrow=none;" value="" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="856" y="321" as="sourcePoint" />
+            <mxPoint x="856" y="491" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="43" parent="1" style="edgeStyle=none;strokeColor=#62518a;strokeWidth=1.4;endArrow=block;" value="" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="856" y="491" as="sourcePoint" />
+            <mxPoint x="747" y="491" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="44" parent="1" style="edgeStyle=none;strokeColor=#62518a;strokeWidth=1.4;endArrow=none;" value="" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="480" y="155" as="sourcePoint" />
+            <mxPoint x="480" y="180" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45" parent="1" style="edgeStyle=none;strokeColor=#62518a;strokeWidth=1.4;endArrow=none;" value="" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="480" y="180" as="sourcePoint" />
+            <mxPoint x="645" y="180" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="46" parent="1" style="edgeStyle=none;strokeColor=#62518a;strokeWidth=1.4;endArrow=block;" value="" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="645" y="180" as="sourcePoint" />
+            <mxPoint x="645" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

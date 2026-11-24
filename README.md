@@ -47,4 +47,4 @@ py -3 -m pip install --target data/twitch-runtime -r requirements-twitch.txt
 
 Выберите сессию. Во вкладке панели можно скачать JSON или текст UTF-8 для титров, а также скопировать URL интеграции. GET `/api/sessions/{id}/summary` возвращает актуальные данные итога. GET `/api/sessions/{id}/summary?download=1` скачивает JSON. GET `/api/sessions/{id}/credits` скачивает текст. API доступен только на этом компьютере. Временные отметки — Unix-время в секундах, поле `duration` — длительность в секундах.
 
-[Актуальное ТЗ](docs/spec.md) · [Проверка](docs/acceptance.md) · [Учебный отчёт предыдущей версии](docs/weekly-report.md)
+[Актуальное ТЗ](docs/spec.md) · [Проверка](docs/acceptance.md) · [Отчёт по неделям 1–10](docs/weekly-report.md)
