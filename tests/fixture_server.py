@@ -14,7 +14,7 @@ args = parser.parse_args()
 with ThreadingHTTPServer(("127.0.0.1", 0), Handler) as server:
     server.store = Store(args.directory)
     server.twitch = Twitch(server.store)
-    started = time.time() - 150
+    started = int(time.time()) - 150
     with server.store.connect(write=True) as db:
         data.sync_stream(db, "owner", {"id":"fake1", "title":"Тестовый эфир Twitch",
                                        "game_name":"Just Chatting", "started_at":data.iso(started)})
