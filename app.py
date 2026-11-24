@@ -22,6 +22,8 @@ STATIC = {
     "/app.js": ("app.js", "text/javascript"),
     "/help": ("help.html", "text/html"),
     "/summary.js": ("summary.js", "text/javascript"),
+    "/mixer.svg": ("mixer.svg", "image/svg+xml"),
+    "/favicon.ico": ("favicon.ico", "image/x-icon"),
     "/style.css": ("style.css", "text/css"),
 }
 ACTIONS = {
@@ -110,7 +112,8 @@ class Handler(BaseHTTPRequestHandler):
             return
         if method == "GET" and path in STATIC:
             name, mime = STATIC[path]
-            self.send_bytes((ROOT / "web" / name).read_bytes(), mime + "; charset=utf-8")
+            content_type = mime if mime.startswith("image/") else mime + "; charset=utf-8"
+            self.send_bytes((ROOT / "web" / name).read_bytes(), content_type)
             return
         if path == "/api/sessions":
             with store.connect(write=method == "POST") as db:

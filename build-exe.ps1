@@ -11,7 +11,7 @@ Push-Location $PSScriptRoot
 try {
     & $Python -m PyInstaller --noconfirm --onefile --console --noupx `
         --name StreamHelper --distpath $destination --workpath (Join-Path $scratch "pyinstaller") --specpath $scratch `
-        --add-data "$PSScriptRoot/web:web" --add-data "$PSScriptRoot/schema.sql:." "$PSScriptRoot/app.py"
+        --icon "$PSScriptRoot/web/favicon.ico" --add-data "$PSScriptRoot/web:web" --add-data "$PSScriptRoot/schema.sql:." "$PSScriptRoot/app.py"
     if ($LASTEXITCODE) { throw "PyInstaller build failed (exit $LASTEXITCODE)." }
 } finally {
     Pop-Location

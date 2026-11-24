@@ -35,8 +35,8 @@ main { width: min(100%, 1100px); min-width: 0; margin: 0 auto; padding: 2.4rem c
   color: inherit; font-weight: 750; font-size: .99rem; text-decoration: none; letter-spacing: -.015em;
 }
 .brand-icon {
-  display: grid; place-items: center; flex: 0 0 2rem; height: 2rem; border-radius: .65rem;
-  background: #b7f4cb; color: #183728; font-size: 1.1rem;
+  display: block; flex: 0 0 2rem; width: 2rem; height: 2rem;
+  border-radius: .55rem; background: #234032;
 }
 .rail nav { display: grid; gap: .35rem; }
 .rail nav a {
