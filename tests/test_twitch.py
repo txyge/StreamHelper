@@ -1,116 +1,74 @@
-"""Приёмка обработки данных Twitch с воспроизводимыми ответами API."""
+import json
 import tempfile
-import time
 import unittest
-from pathlib import Path
-from unittest.mock import patch
+from datetime import datetime, timezone
+from unittest.mock import patch, Mock
 
-import publication
-import twitch_data as data
-from streams import Problem, Store
-from twitch import Twitch
+from donations import Donations
+from streamerbot import StreamerBot
+from streams import Store, mark
+from summary import detail
+
+def iso(value):
+    return datetime.fromtimestamp(value, timezone.utc).isoformat()
 
 
-class TwitchTest(unittest.TestCase):
+class IntegrationTest(unittest.TestCase):
     def setUp(self):
-        temporary = tempfile.TemporaryDirectory()
-        self.addCleanup(temporary.cleanup)
-        self.store = Store(Path(temporary.name))
-        self.twitch = Twitch(self.store)
-        self.started = int(time.time()) - 90
-        self.live = {"id": "TwitchStream1", "started_at": data.iso(self.started),
-                     "title": "Первый рейд", "game_name": "Just Chatting"}
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        self.store = Store(directory.name)
+        self.donations = Donations(self.store, 18767)
+        self.finished = Mock()
+        self.bot = StreamerBot(self.store, self.finished)
 
-    def remote(self, endpoint, query=None, body=None):
-        response = {
-            "streams": {"data": [self.live] if self.live else []},
-            "chat/chatters": (
-                {"data": [{"user_id": "j", "user_name": "Тихий зритель"}], "pagination": {"cursor": "page2"}}
-                if "after" not in (query or {}) else
-                {"data": [{"user_id": "k", "user_name": "Ещё зритель"}]}
-            ),
-            "moderation/moderators": {"data": [{"user_name": "Модератор"}]},
-            "bits/leaderboard": {"data": [{"user_name": "Сова", "score": 200}]},
-            "videos": {"data": [{"id": "vod1", "stream_id": "TwitchStream1", "duration": "1m30s"}]},
-        }
+    def send(self, kind, when, **data):
+        self.bot.event({"event":{"source":"Twitch","type":kind}, "timeStamp":iso(when),"data":data})
 
-        if endpoint == "clips":
-            if body is not None:
-                self.assertEqual(body, {})
-                self.assertEqual(query, {"broadcaster_id":"owner", "duration":17})
-                return {"data": [{"id": "new-clip"}]}
-            live_clip = {"id": "new-clip", "video_id": "vod1", "title": "Лучший момент",
-                         "url": "https://clips.twitch.tv/NewClip", "created_at": data.iso(self.started + 45)}
-            other = {**live_clip, "id": "old-clip", "video_id": "old", "title": "Чужой VOD"}
-            return {"data": [live_clip] if "id" in query else [other, live_clip]}
-        return response[endpoint]
+    def test_summary(self):
+        self.send("ChatMessage", 95, text="!вопрос Рано", user={"id":"pre","name":"Рано"})
+        self.send("StreamOnline", 101, id="stream", startedAt=iso(100), game={"Name":"Minecraft"})
+        self.send("StreamOnline", 102, id="stream", startedAt=iso(100))
+        self.send("StreamUpdate", 103, status="Обсуждаем игру", game={"name":"Just Chatting"})
+        for _ in range(2):
+            self.send("ChatMessage", 104, messageId="q", text="!вопрос Где база?",
+                      user={"id":"mod","name":"Мод","badges":[{"name":"moderator"}]})
+        self.send("UserTimedOut", 105, moderator={"id":"other","name":"Второй"})
+        self.bot.viewers([{"id":"viewer","type":"twitch","display":"Зритель","previousActive":iso(105)}])
+        with self.store.connect(write=True) as db, patch("streams.time.time", return_value=106):
+            self.assertEqual(mark(db, 1, {"label":"Момент"})["seconds"], 6)
+        self.send("StreamOffline", 110)
+        self.finished.assert_called_once_with(1)
+        self.send("ChatMessage", 111, text="!вопрос Поздно", user={"id":"late","name":"Поздно"})
+        self.donations.tokens = {"access_token":"fake"}
+        def item(key, when):
+            return {"id":key,"created_at":iso(when),"username":key,"amount":42,"currency":"RUB"}
+        pages = [{"data":[item("После",111),item("Первый",110)],"links":{"next":"page=2"}},
+                 {"data":[item("Первый",110),item("Второй",105),item("До",99)],"links":{"next":None}}]
+        with patch("donations.fetch", side_effect=pages):
+            self.donations.sync(1)
+        with self.store.connect() as db:
+            report = detail(db, 1)
+            self.assertEqual(report["duration"], 10)
+            self.assertEqual([row["category"] for row in report["topics"]],["Minecraft","Just Chatting"])
+            self.assertEqual(report["title"], "Обсуждаем игру")
+            self.assertCountEqual(report["viewers"], ["Зритель","Мод","Второй"])
+            self.assertCountEqual(report["moderators"], ["Мод","Второй"])
+            self.assertEqual([row["name"] for row in report["donations"]], ["Второй","Первый"])
+            self.assertEqual(db.execute("SELECT COUNT(*) FROM questions").fetchone()[0],1)
 
-    def event(self, kind, event_id, payload, elapsed=30):
-        self.twitch.notification("owner", {
-            "metadata": {"subscription_type": kind, "message_id": event_id,
-                         "message_timestamp": data.iso(self.started + elapsed)},
-            "payload": {"event": {"broadcaster_user_id": "owner", **payload}},
-        })
-
-    def test_collection_and_snapshot(self):
-        with patch.object(self.twitch, "helix", side_effect=self.remote):
-            self.twitch.sync("owner")
-            self.live["game_name"] = "Minecraft"
-            self.twitch.sync("owner")
-            question = {"chatter_user_name": "Сова", "chatter_user_id": "owl",
-                        "message": {"text": "!вопрос Когда рейд?"}}
-            self.event("channel.chat.message", "chat1", question)
-            self.event("channel.chat.message", "chat1", question)
-            self.event("channel.chat.message", "chat2", {**question, "message": {"text": "Привет"}})
-            self.event("channel.cheer", "bits1", {"user_id": "owl", "user_name": "Сова", "bits": 150})
-            self.event("channel.cheer", "bits1", {"user_id": "owl", "user_name": "Сова", "bits": 150})
-            self.twitch.ready = True
-            self.twitch.account = {"user_id": "owner"}
-            self.assertEqual(self.twitch.create_clip(1, {"duration":17}), {"id": "new-clip"})
-            self.event("stream.offline", "end", {}, elapsed=80)
-            self.twitch.sync("owner")  # Helix still advertises this broadcast.
-            with self.store.connect(write=True) as db:
-                self.assertIsNone(data.active(db, "owner"))
-                self.assertEqual(db.execute("SELECT COUNT(*) FROM questions").fetchone()[0], 1)
-                card = publication.publish(db, 1, {})
-                self.assertEqual(card["duration"], 80)
-                self.assertEqual(card["categories"], ["Just Chatting", "Minecraft"])
-                self.assertCountEqual(card["audience"], ["Тихий зритель", "Ещё зритель", "Сова"])
-                self.assertEqual(card["active_chat"], [{"name": "Сова", "count": 2}])
-                self.assertEqual(card["top_bits"], [{"name": "Сова", "count": 150}])
-                self.assertEqual(card["bits_today"]["entries"], [{"name": "Сова", "count": 200}])
-                self.assertEqual(card["moderators"], ["Модератор"])
-                self.assertEqual(card["clips"], [{"title":"Лучший момент", "url":"https://clips.twitch.tv/NewClip"}])
-                self.assertNotIn("Когда рейд", str(card))
-            self.event("channel.chat.message", "late", question, elapsed=60)
-            with Store(self.store.directory).connect() as db:
-                self.assertEqual(publication.latest(db), card)
-                self.assertEqual(publication.preview(db, 1)["active_chat"][0]["count"], 3)
-
-    def test_clip_rejects_invalid_duration_and_offline_stream(self):
-        with patch.object(self.twitch, "helix", side_effect=self.remote):
-            self.twitch.sync("owner")
-        self.twitch.ready = True
-        self.twitch.account = {"user_id": "owner"}
-        with patch.object(self.twitch, "helix", return_value={"data": []}) as api:
-            with self.assertRaisesRegex(Problem, "5 до 60"):
-                self.twitch.create_clip(1, {"duration":4})
-            api.assert_not_called()
-            with self.assertRaisesRegex(Problem, "завершён"):
-                self.twitch.create_clip(1, {"duration":17})
-            api.assert_called_once_with("streams", {"user_id":"owner"})
-
-    def test_poll_recovery_requires_two_successful_offline_responses(self):
-        with patch.object(self.twitch, "helix", side_effect=self.remote):
-            self.twitch.sync("owner")
-            self.live = None
-            self.twitch.sync("owner")
-            with self.store.connect() as db:
-                self.assertIsNotNone(data.active(db, "owner"))
-            self.twitch.sync("owner")
-            with self.store.connect() as db:
-                self.assertIsNone(data.active(db, "owner"))
-
-
-if __name__ == "__main__":
-    unittest.main()
+    def test_subscription_and_oauth(self):
+        connection = Mock()
+        connection.recv.side_effect = ['{"request":"Hello"}','{"id":"streams","status":"ok"}']
+        self.bot.subscribe(connection)
+        request = json.loads(connection.send.call_args.args[0])
+        self.assertIn("ChatMessage", request["events"]["Twitch"])
+        self.assertIn("StreamUpdate", request["events"]["Twitch"])
+        self.donations.client, self.donations.secret = "123", "test"
+        from urllib.parse import urlsplit, parse_qs
+        query = parse_qs(urlsplit(self.donations.authorization()).query)
+        self.assertEqual(query["scope"], ["oauth-donation-index"])
+        query["code"] = ["sample"]
+        with patch("donations.fetch", return_value={"access_token":"fake"}):
+            self.donations.callback(query)
+        self.assertTrue(self.donations.status()["connected"])

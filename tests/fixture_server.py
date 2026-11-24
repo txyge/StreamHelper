@@ -1,33 +1,27 @@
-"""Локальный сервер теста с заранее доставленными событиями Twitch."""
-import argparse
+import sys
 import time
 from http.server import ThreadingHTTPServer
 
-import twitch_data as data
 from app import Handler
+from donations import Donations
+from streamerbot import StreamerBot
 from streams import Store
-from twitch import Twitch
+from tests.test_twitch import iso
 
-parser = argparse.ArgumentParser()
-parser.add_argument("directory")
-args = parser.parse_args()
 with ThreadingHTTPServer(("127.0.0.1", 0), Handler) as server:
-    server.store = Store(args.directory)
-    server.twitch = Twitch(server.store)
-    started = int(time.time()) - 150
+    server.store = Store(sys.argv[1])
+    server.donations = Donations(server.store, server.server_port)
+    server.bot = StreamerBot(server.store, server.donations.sync_later)
+    started = int(time.time()) - 120
+    def send(kind, **data):
+        server.bot.event({"event":{"source":"Twitch","type":kind},
+                          "timeStamp":iso(started + 10),"data":data})
+    send("StreamOnline", id="stream", startedAt=iso(started), game={"Name":"Minecraft"})
+    send("StreamUpdate", status="Строим базу", game={"name":"Minecraft"})
+    send("ChatMessage", messageId="q", text="!вопрос Где база?",
+         user={"id":"mod","name":"Модератор","badges":[{"name":"moderator"}]})
     with server.store.connect(write=True) as db:
-        data.sync_stream(db, "owner", {"id":"fake1", "title":"Тестовый эфир Twitch",
-                                       "game_name":"Just Chatting", "started_at":data.iso(started)})
-        for index in range(2):
-            data.receive(db, "owner", "channel.chat.message", f"msg{index}", started + 30 + index, {
-                "broadcaster_user_id":"owner", "chatter_user_name":"Сова", "chatter_user_id":"owl",
-                "message":{"text":"!вопрос Как дела?" if index else "Привет"}
-            })
-        data.receive(db, "owner", "channel.cheer", "bits1", started + 42, {
-            "broadcaster_user_id":"owner", "user_name":"Сова", "user_id":"owl", "bits":42
-        })
-        data.save_clip(db, 1, {"id":"clip", "title":"Победа", "url":"https://clips.twitch.tv/TestClip",
-                               "created_at":data.iso(started+75)})
-        data.sync_stream(db, "owner", None, started + 120)
+        db.execute("INSERT INTO session_donations VALUES (1,'1',?,'Донатер','200','RUB')", (started+15,))
+        db.execute("INSERT INTO donation_sync VALUES (1,?)", (started+15,))
     print(f"http://127.0.0.1:{server.server_port}", flush=True)
     server.serve_forever()

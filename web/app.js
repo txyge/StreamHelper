@@ -72,7 +72,7 @@ async function refresh(preferred = selected) {
   select.replaceChildren(option("", "Выберите эфир"), ...sessions.map(item =>
     option(String(item.id), item.title + (item.ended === null ? " · в эфире" : " · завершён"))
   ));
-  const latest = sessions.find(item => item.twitch_stream && item.ended === null) || sessions[0];
+  const latest = sessions.find(item => item.ended === null) || sessions[0];
   const target = preferred ?? (latest ? String(latest.id) : "");
   selected = target;
   select.value = target;
@@ -89,8 +89,8 @@ function date(seconds) {
 function render() {
   byId("session").hidden = !current;
   byId("summary").hidden = !current;
-  byId("chat").hidden = current?.card.source !== "twitch";
-  renderPublication();
+  byId("chat").hidden = !current;
+  renderSummary();
   if (!current) {
     return;
   }
@@ -99,10 +99,8 @@ function render() {
   const live = session.ended === null;
   byId("session-info").textContent = session.title + " · Начало " + date(session.started)
     + (live ? "" : " · Завершение " + date(session.ended));
-  const twitch = current.card.source === "twitch";
-  byId("finish").hidden = !live || twitch;
+  byId("finish").hidden = !live;
   byId("mark").hidden = !live;
-  byId("summary-title").textContent = live ? "Таймкоды" : "Личные итоги";
   byId("duration").textContent = (live ? "От начала эфира " : "Длительность ") + time(duration);
   list("marks", marks, (row, item) => {
     row.textContent = time(item.seconds) + " · " + item.label + (item.note ? " · " + item.note : "");

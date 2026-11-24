@@ -3,29 +3,25 @@ import argparse
 import json
 import re
 import socket
-from urllib.parse import urlsplit
+from urllib.parse import parse_qs, urlsplit
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import chat
-import publication
+import summary
 import streams
-from twitch import Twitch
+from donations import Donations
+from streamerbot import StreamerBot
 from streams import Problem, ROOT, Store
 
 STATIC = {
     "/": ("index.html", "text/html"),
     "/app.js": ("app.js", "text/javascript"),
-    "/viewer": ("viewer.html", "text/html"),
-    "/viewer.js": ("viewer.js", "text/javascript"),
-    "/card.js": ("card.js", "text/javascript"),
-    "/publish.js": ("publish.js", "text/javascript"),
-    "/twitch.js": ("twitch.js", "text/javascript"),
-    "/media.js": ("media.js", "text/javascript"),
+    "/summary.js": ("summary.js", "text/javascript"),
     "/style.css": ("style.css", "text/css"),
 }
 ACTIONS = {
     "finish": streams.finish, "marks": streams.mark,
-    "answer": chat.answer, "publish": publication.publish,
+    "answer": chat.answer,
 }
 
 
@@ -89,18 +85,15 @@ class Handler(BaseHTTPRequestHandler):
 
     def dispatch(self, method, path):
         store = self.server.store
-        if method == "GET" and path == "/api/twitch":
-            self.send_json(self.server.twitch.status())
+        if method == "GET" and path == "/api/connections":
+            self.send_json({"bot":self.server.bot.message, "donations":self.server.donations.status()})
             return
-        if method == "POST" and path == "/api/twitch/connect":
-            self.send_json(self.server.twitch.connect(self.json_body().get("client_id")))
+        if method == "GET" and path == "/donationalerts/connect":
+            self.redirect(self.server.donations.authorization())
             return
-        if method == "GET" and path == "/api/viewer":
-            with store.connect() as db:
-                card = publication.latest(db)
-            self.send_json(card)
-            return
-        if method == "GET" and self.find_clip(path):
+        if method == "GET" and path == "/donationalerts/callback":
+            self.server.donations.callback(parse_qs(urlsplit(self.path).query))
+            self.redirect("/")
             return
         if method == "GET" and path in STATIC:
             name, mime = STATIC[path]
@@ -111,89 +104,43 @@ class Handler(BaseHTTPRequestHandler):
                 if method == "POST":
                     result = streams.start(db, self.json_body())
                 else:
-                    result = [dict(row) for row in db.execute(
-                        "SELECT s.*, t.stream AS twitch_stream FROM sessions s "
-                        "LEFT JOIN twitch_streams t ON t.session_id=s.id ORDER BY s.id DESC")]
+                    result = [dict(row) for row in db.execute("SELECT * FROM sessions ORDER BY id DESC")]
             self.send_json(result)
             return
         match = re.fullmatch(r"/api/sessions/([0-9]+)(?:/([a-z]+))?", path)
         if match:
             sid, action = int(match[1]), match[2]
-            if method == "POST" and action == "twitchclip":
-                self.send_json(self.server.twitch.create_clip(sid, self.json_body()), 202)
+            if method == "POST" and action == "donations":
+                self.json_body()
+                self.server.donations.sync(sid)
+                self.send_json({"ok": True})
                 return
             if method == "GET" and action is None:
                 with store.connect() as db:
                     result = {**streams.detail(db, sid), **chat.detail(db, sid),
-                              "card": publication.preview(db, sid)}
+                              "report": summary.detail(db, sid)}
                 self.send_json(result)
                 return
             if method == "POST" and action in ACTIONS:
                 data = self.json_body()
                 with store.connect(write=True) as db:
-                    if action == "finish" and db.execute(
-                        "SELECT 1 FROM twitch_streams WHERE session_id=?", (sid,)
-                    ).fetchone():
-                        raise Problem("Эта сессия управляется Twitch.", 409)
                     result = ACTIONS[action](db, sid, data)
+                if action == "finish":
+                    self.server.donations.sync_later(sid)
                 self.send_json(result)
                 return
         raise Problem("Страница не найдена.", 404)
 
-    def find_clip(self, path):
-        match = re.fullmatch(r"/clips/([0-9a-f]{32})", path)
-        if not match:
-            return False
-        key = match[1]
-        store = self.server.store
-        with store.connect() as db:
-            if not db.execute("SELECT 1 FROM clips WHERE id=?", (key,)).fetchone():
-                raise Problem("Видео не найдено.", 404)
-        download = "clip-" + key[:8] + ".mp4" if urlsplit(self.path).query == "download=1" else None
-        self.send_file(store.directory / "clips" / (key + ".mp4"), "video/mp4", download)
-        return True
+    def redirect(self, target):
+        self.send_response(303)
+        self.send_header("Location", target)
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("Content-Length", "0")
+        self.end_headers()
 
-    def send_file(self, path, mime, download=None):
-        if not path.is_file():
-            raise Problem("Видео не найдено.", 404)
-        with path.open("rb") as source:
-            size = path.stat().st_size
-            first, last = 0, size - 1
-            header = self.headers.get("Range")
-            if header:
-                match = re.fullmatch(r"bytes=([0-9]{0,20})-([0-9]{0,20})", header)
-                if match and match[1]:
-                    first = int(match[1])
-                    if match[2]:
-                        last = min(last, int(match[2]))
-                elif match and match[2]:
-                    first = max(0, size - int(match[2]))
-                else:
-                    first = size
-                if first > last:
-                    self.send_response(416)
-                    self.send_header("Content-Range", f"bytes */{size}")
-                    self.send_header("Content-Length", "0")
-                    self.end_headers()
-                    return
-            self.send_response(206 if header else 200)
-            self.send_header("Content-Type", mime)
-            self.send_header("Accept-Ranges", "bytes")
-            self.send_header("Content-Length", str(last - first + 1))
-            self.send_header("X-Content-Type-Options", "nosniff")
-            if header:
-                self.send_header("Content-Range", f"bytes {first}-{last}/{size}")
-            if download:
-                self.send_header("Content-Disposition", f'attachment; filename="{download}"')
-            self.end_headers()
-            source.seek(first)
-            remaining = last - first + 1
-            while remaining:
-                chunk = source.read(min(remaining, 256 * 1024))
-                if not chunk:
-                    break
-                self.wfile.write(chunk)
-                remaining -= len(chunk)
+    def log_request(self, code="-", size="-"):
+        if urlsplit(self.path).path != "/donationalerts/callback":
+            super().log_request(code, size)
 
 
 def report_error():
@@ -217,7 +164,9 @@ def main():
     args = parser.parse_args()
     with LocalServer(("127.0.0.1", args.port), Handler) as server:
         server.store = Store(args.data)
-        server.twitch = Twitch(server.store)
+        server.donations = Donations(server.store, server.server_port)
+        server.bot = StreamerBot(server.store, server.donations.sync_later)
+        server.bot.start()
         print(f"StreamHelper: http://127.0.0.1:{server.server_port}/", flush=True)
         try:
             server.serve_forever()

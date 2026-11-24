@@ -1,39 +1,32 @@
 <!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>СтримПомощник</title><link rel="stylesheet" href="/style.css"><script defer src="/card.js"></script><script defer src="/app.js"></script>
-<script defer src="/media.js"></script><script defer src="/publish.js"></script><script defer src="/twitch.js"></script></head>
+<title>СтримПомощник</title><link rel="stylesheet" href="/style.css">
+<script defer src="/app.js"></script><script defer src="/summary.js"></script></head>
 <body><main>
-<header class="masthead"><h1>СтримПомощник</h1><a href="/viewer" target="_blank" rel="noopener">Экран зрителей ↗</a></header>
+<header class="masthead"><h1>СтримПомощник</h1></header>
 <p id="status" role="status" aria-live="polite"></p>
-<section><h2>Прямой эфир Twitch</h2>
-<p id="twitch-state" role="status">Проверяем подключение…</p>
-<form id="twitch-connect"><label>Client ID приложения Twitch <input name="client_id" required maxlength="80"></label>
-<button>Подключить Twitch</button></form>
-<p id="twitch-activation" hidden><a id="twitch-url" target="_blank" rel="noopener noreferrer">Подтвердить в Twitch</a> · Код <strong id="twitch-code"></strong></p>
+<section><h2>Подключения</h2>
+<p id="bot-state" role="status">Проверяем Streamer.bot…</p>
+<p id="da-state" role="status">Проверяем DonationAlerts…</p>
+<form id="da-connect" method="get" action="/donationalerts/connect" hidden><button>Подключить DonationAlerts</button></form>
 </section>
 <section><h2>Сессия</h2>
-<form id="start"><label>Название <input name="title" maxlength="120" required></label><button>Начать демонстрационный эфир</button></form>
+<form id="start"><label>Название <input name="title" maxlength="120" required></label><button>Начать сессию вручную</button></form>
 <div class="field"><label for="sessions">Сессия</label><select id="sessions"><option value="">Выберите эфир</option></select></div>
-<div id="session" hidden><p id="session-info"></p><button id="finish" type="button">Завершить эфир</button>
+<div id="session" hidden><p id="session-info"></p><button id="finish" type="button">Завершить сессию</button></div>
+</section>
+<section id="summary" hidden><h2>Таймкоды</h2>
 <form id="mark"><label>Подпись момента <input name="label" maxlength="120" required></label>
-<label>Приватная заметка <input name="note" maxlength="500"></label><button>Поставить таймкод</button></form></div>
-</section>
-<section id="summary" hidden><h2 id="summary-title">Таймкоды</h2><p id="duration"></p><ul id="marks"></ul></section>
-<section id="media"><h2>Клип из эфира Twitch</h2>
-<form id="clip-form">
-<label>Длительность клипа, с <input name="duration" type="number" min="5" max="60" step="1" value="30" required></label>
-<button id="save-clip" type="submit">Создать клип на Twitch</button>
-</form>
-<div class="actions">
-<button id="clip-hotkey" type="button">Назначить клавишу</button>
-<button id="clear-clip-hotkey" type="button" hidden>Сбросить клавишу</button>
-</div>
-<p id="clip-hotkey-status" class="muted" role="status"></p>
-</section>
-<section id="chat" hidden><h2>Вопросы Twitch</h2><ul id="questions"></ul></section>
-<section id="publication" hidden><h2>Итоги для зрителей</h2>
-
-<p id="publish-hint" class="muted"></p><div id="preview"></div>
-<form id="publish"><button>Показать зрителям</button><p id="publish-status" role="status"></p></form>
-</section>
+<label>Заметка <input name="note" maxlength="500"></label><button>Поставить таймкод</button></form>
+<p id="duration"></p><ul id="marks"></ul></section>
+<section id="chat" hidden><h2>Вопросы к стримеру</h2><ul id="questions"></ul></section>
+<section id="report" hidden><h2>Итог трансляции</h2>
+<p id="report-title"></p><p id="report-duration"></p>
+<div class="grid">
+<div><h3>Категории и темы эфира</h3><ul id="topics"></ul></div>
+<div><h3>Обнаруженные зрители</h3><ul id="viewers"></ul></div>
+<div><h3>Модераторы на эфире</h3><ul id="moderators"></ul></div>
+<div><h3>Донаты за эфир</h3><p id="donation-updated"></p><ul id="donations"></ul>
+<button id="sync-donations" type="button">Обновить донаты</button></div>
+</div></section>
 </main></body></html>
