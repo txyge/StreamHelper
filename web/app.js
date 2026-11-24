@@ -95,6 +95,7 @@ function render() {
   byId("session").hidden = !current;
   byId("summary").hidden = !current;
   byId("chat").hidden = !current;
+  renderMedia();
   if (!current) return;
   renderChat();
   const {session, duration, marks} = current;

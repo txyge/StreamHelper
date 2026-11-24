@@ -2,15 +2,18 @@
 import argparse
 import json
 import re
+from urllib.parse import urlsplit
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import chat
+import media
 import streams
 from streams import Problem, ROOT, Store
 
 STATIC = {
     "/": ("index.html", "text/html"),
     "/app.js": ("app.js", "text/javascript"),
+    "/media.js": ("media.js", "text/javascript"),
     "/style.css": ("style.css", "text/css"),
 }
 ACTIONS = {
@@ -36,7 +39,7 @@ class Handler(BaseHTTPRequestHandler):
                 origin = self.headers.get("Origin")
                 if origin and origin != "http://" + self.headers["Host"]:
                     raise Problem("Разрешены запросы из локальной панели.", 403)
-            self.dispatch(method, self.path.split("?", 1)[0])
+            self.dispatch(method, urlsplit(self.path).path)
         except Problem as exc:
             self.send_json({"error": str(exc)}, exc.status)
         except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
@@ -80,6 +83,8 @@ class Handler(BaseHTTPRequestHandler):
 
     def dispatch(self, method, path):
         store = self.server.store
+        if method == "GET" and self.find_media(path):
+            return
         if method == "GET" and path in STATIC:
             name, mime = STATIC[path]
             self.send_bytes((ROOT / "web" / name).read_bytes(), mime + "; charset=utf-8")
@@ -96,9 +101,17 @@ class Handler(BaseHTTPRequestHandler):
         match = re.fullmatch(r"/api/sessions/([0-9]+)(?:/([a-z]+))?", path)
         if match:
             sid, action = int(match[1]), match[2]
+            if method == "POST" and action == "recording":
+                self.send_json(media.upload(store, sid, self.rfile, self.length(media.MAX_UPLOAD),
+                                            self.headers.get_content_type()))
+                return
+            if method == "POST" and action == "clips":
+                self.send_json(media.export(store, sid, self.json_body()))
+                return
             if method == "GET" and action is None:
                 with store.connect() as db:
-                    result = {**streams.detail(db, sid), **chat.detail(db, sid)}
+                    result = {**streams.detail(db, sid), **chat.detail(db, sid),
+                              **media.detail(db, sid)}
                 self.send_json(result)
                 return
             if method == "POST" and action in ACTIONS:
@@ -108,6 +121,69 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_json(result)
                 return
         raise Problem("Страница не найдена.", 404)
+
+    def find_media(self, path):
+        store = self.server.store
+        if path == "/demo.mp4":
+            self.send_file(ROOT / "demo" / "demo.mp4", "video/mp4")
+            return True
+        match = re.fullmatch(r"/(recordings|clips)/([0-9a-f]{32})", path)
+        if not match:
+            return False
+        kind, key = match.groups()
+        with store.connect() as db:
+            query = "SELECT mime FROM recordings WHERE id=?" if kind == "recordings" else (
+                "SELECT 'video/mp4' AS mime FROM clips WHERE id=?"
+            )
+            row = db.execute(query, (key,)).fetchone()
+        if not row:
+            raise Problem("Видео не найдено.", 404)
+        name = key if kind == "recordings" else key + ".mp4"
+        download = "clip-" + key[:8] + ".mp4" if urlsplit(self.path).query == "download=1" else None
+        self.send_file(media.file_path(store, kind, name), row["mime"], download)
+        return True
+
+    def send_file(self, path, mime, download=None):
+        if not path.is_file():
+            raise Problem("Видео не найдено.", 404)
+        with path.open("rb") as source:
+            size = path.stat().st_size
+            first, last = 0, size - 1
+            header = self.headers.get("Range")
+            if header:
+                match = re.fullmatch(r"bytes=([0-9]{0,20})-([0-9]{0,20})", header)
+                if match and match[1]:
+                    first = int(match[1])
+                    if match[2]:
+                        last = min(last, int(match[2]))
+                elif match and match[2]:
+                    first = max(0, size - int(match[2]))
+                else:
+                    first = size
+                if first > last:
+                    self.send_response(416)
+                    self.send_header("Content-Range", f"bytes */{size}")
+                    self.send_header("Content-Length", "0")
+                    self.end_headers()
+                    return
+            self.send_response(206 if header else 200)
+            self.send_header("Content-Type", mime)
+            self.send_header("Accept-Ranges", "bytes")
+            self.send_header("Content-Length", str(last - first + 1))
+            self.send_header("X-Content-Type-Options", "nosniff")
+            if header:
+                self.send_header("Content-Range", f"bytes {first}-{last}/{size}")
+            if download:
+                self.send_header("Content-Disposition", f'attachment; filename="{download}"')
+            self.end_headers()
+            source.seek(first)
+            remaining = last - first + 1
+            while remaining:
+                chunk = source.read(min(remaining, 256 * 1024))
+                if not chunk:
+                    break
+                self.wfile.write(chunk)
+                remaining -= len(chunk)
 
 
 def report_error():

@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>СтримПомощник</title><link rel="stylesheet" href="/style.css"><script defer src="/app.js"></script></head>
+<title>СтримПомощник</title><link rel="stylesheet" href="/style.css"><script defer src="/app.js"></script><script defer src="/media.js"></script></head>
 <body><main>
 <header><h1>СтримПомощник</h1></header>
 <p id="status" role="status" aria-live="polite"></p>
@@ -12,6 +12,18 @@
 <label>Приватная заметка <input name="note" maxlength="500"></label><button>Поставить таймкод</button></form></div>
 </section>
 <section id="summary" hidden><h2 id="summary-title">Таймкоды</h2><p id="duration"></p><ul id="marks"></ul></section>
+<section id="media" hidden><h2>Запись и клипы</h2>
+<div class="media-layout"><div>
+<label>Локальная запись (MP4 или WebM) <input id="recording-file" type="file" accept=".mp4,.webm"></label>
+<button id="load-demo" type="button">Загрузить деморолик</button>
+<video id="recording-video" controls preload="metadata" playsinline aria-label="Запись эфира"></video>
+<form id="seek"><label>Позиция в записи, с <input name="seconds" type="number" step="any" min="0" required></label>
+<button>Перейти</button></form>
+<p class="muted">Позиция в записи отсчитывается отдельно от таймкодов эфира.</p>
+<div class="actions"><button id="save-clip" type="button">Сохранить последние 30 секунд</button>
+<button id="voice" type="button">Включить голос</button></div>
+<p id="voice-status" class="muted" role="status">Голос включается на одну команду.</p></div>
+<div><h3>Сохранённые клипы</h3><ul id="clips"></ul></div></div></section>
 <div id="chat" class="grid" hidden>
 <section><h2>Тестовый чат</h2>
 <form id="message"><label>Ник <input name="nick" required maxlength="40"></label>
