@@ -68,9 +68,21 @@ async function poll() {
   try {
     const state = await request("/api/connections");
     byId("bot-state").textContent = state.bot;
-    byId("da-state").textContent = state.donations.message || (state.donations.connected
-      ? "DonationAlerts подключён." : "DonationAlerts не подключён.");
-    byId("da-connect").hidden = !state.donations.configured;
+
+    const {donations} = state;
+    if (donations.connected) {
+      byId("da-state").textContent = donations.account
+        ? "Подключено к аккаунту " + donations.account
+        : "Подключено. Подтвердите доступ к профилю, чтобы показать имя аккаунта.";
+    } else {
+      byId("da-state").textContent = "Не подключено.";
+    }
+    byId("da-error").textContent = donations.message || "";
+    byId("da-error").hidden = !donations.message;
+    byId("da-settings").hidden = donations.connected;
+    byId("da-connect").hidden = !donations.configured || Boolean(donations.connected && donations.account);
+    byId("da-connect-button").textContent = donations.connected
+      ? "Подтвердить доступ к профилю" : "Подключить DonationAlerts";
     await refresh(chosenSession ? selected : null);
   } catch {
     byId("bot-state").textContent = "Локальный сервер недоступен.";

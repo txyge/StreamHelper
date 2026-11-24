@@ -3,10 +3,21 @@ import time
 from http.server import ThreadingHTTPServer
 
 from app import Handler
+import donations
 from donations import Donations
 from streamerbot import StreamerBot
 from streams import Store
 from tests.test_twitch import iso
+
+def fake_donation_api(path, token=None, form=None):
+    if path == "/oauth/token":
+        return {"access_token":"fixture"}
+    if path == "/api/v1/user/oauth":
+        return {"data":{"name":"Тестовый стример"}}
+    raise AssertionError(path)
+
+
+donations.fetch = fake_donation_api
 
 with ThreadingHTTPServer(("127.0.0.1", 0), Handler) as server:
     server.store = Store(sys.argv[1])

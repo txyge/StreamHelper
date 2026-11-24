@@ -12,13 +12,15 @@
     <a href="#report" data-session-link hidden><span aria-hidden="true">▤</span> Итог</a>
     <a href="#connections"><span aria-hidden="true">⌁</span> Подключения</a>
   </nav>
-  <a class="rail-help" href="/help">Инструкция подключения <span aria-hidden="true">↗</span></a>
+
+  <div class="rail-footer">
+    <label class="theme-control">Тема <select id="theme-choice">
+      <option value="system">Как в системе</option><option value="light">Светлая</option><option value="dark">Тёмная</option>
+    </select></label>
+  </div>
 </aside>
 <main>
-<header class="masthead"><h1 id="page-title">Панель стримера</h1>
-<label class="theme-control">Тема <select id="theme-choice">
-<option value="system">Как в системе</option><option value="light">Светлая</option><option value="dark">Тёмная</option>
-</select></label></header>
+<header class="masthead"><h1 id="page-title">Панель стримера</h1></header>
 <p id="status" role="status" aria-live="polite"></p>
 
 <section id="stream" class="session-panel" aria-labelledby="stream-heading">
@@ -83,17 +85,22 @@
 <section id="connections" class="panel">
   <header class="panel-heading"><h2><span class="symbol symbol-purple" aria-hidden="true">⌁</span>Подключения</h2></header>
   <div class="report-grid">
-    <div class="report-card"><h3>Streamer.bot</h3><p id="bot-state" class="muted" role="status">Проверяем Streamer.bot…</p></div>
+
     <div class="report-card">
-      <h3>DonationAlerts</h3><p id="da-state" class="muted" role="status">Проверяем DonationAlerts…</p>
-      <details><summary>Настройки DonationAlerts</summary>
-        <form id="da-settings">
-          <label>Client ID <input name="client_id" inputmode="numeric" pattern="[0-9]+" maxlength="64" required></label>
-          <label>Client Secret <input name="client_secret" type="password" maxlength="512" autocomplete="off" required></label>
-          <button>Сохранить настройки</button>
-        </form>
-      </details>
-      <form id="da-connect" method="get" action="/donationalerts/connect" hidden><button class="button button-secondary">Подключить DonationAlerts</button></form>
+      <header class="service-heading"><h3>Streamer.bot</h3><a href="/help#streamerbot" aria-label="Инструкция подключения Streamer.bot">Инструкция</a></header>
+      <p id="bot-state" class="muted" role="status">Проверяем Streamer.bot…</p>
+    </div>
+    <div class="report-card">
+
+      <header class="service-heading"><h3>DonationAlerts</h3><a href="/help#donationalerts" aria-label="Инструкция подключения DonationAlerts">Инструкция</a></header>
+      <p id="da-state" class="muted" role="status">Проверяем DonationAlerts…</p>
+      <p id="da-error" class="muted" role="status" hidden></p>
+      <form id="da-settings" hidden>
+        <label>Client ID <input name="client_id" inputmode="numeric" pattern="[0-9]+" maxlength="64" required></label>
+        <label>Client Secret <input name="client_secret" type="password" maxlength="512" autocomplete="off" required></label>
+        <button>Сохранить настройки</button>
+      </form>
+      <form id="da-connect" method="get" action="/donationalerts/connect" hidden><button id="da-connect-button" class="button button-secondary">Подключить DonationAlerts</button></form>
     </div>
   </div>
 </section>

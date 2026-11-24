@@ -71,11 +71,14 @@ class IntegrationTest(unittest.TestCase):
         self.assertNotIn("test", str(self.donations.status()))
         from urllib.parse import urlsplit, parse_qs
         query = parse_qs(urlsplit(self.donations.authorization()).query)
-        self.assertEqual(query["scope"], ["oauth-donation-index"])
+        self.assertEqual(query["scope"], ["oauth-donation-index oauth-user-show"])
         query["code"] = ["sample"]
-        with patch("donations.fetch", return_value={"access_token":"fake"}):
+        with patch("donations.fetch", side_effect=[{"access_token":"fake"}, {"data":{"name":"Стример","email":"private@example.com"}}]):
             self.donations.callback(query)
         self.assertTrue(self.donations.status()["connected"])
-        self.assertTrue(Donations(self.store, 18767).status()["connected"])
+        saved = Donations(self.store, 18767).status()
+        self.assertTrue(saved["connected"])
+        self.assertEqual(saved["account"], "Стример")
+        self.assertNotIn("private@example.com", str(saved))
         self.donations.configure({"client_id":"456","client_secret":"different"})
         self.assertFalse(Donations(self.store, 18767).status()["connected"])

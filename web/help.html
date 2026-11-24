@@ -4,15 +4,15 @@
 <script>try { document.documentElement.dataset.theme = localStorage.getItem("streamhelper.theme") || "system"; } catch {}</script><link rel="stylesheet" href="/style.css"></head>
 <body class="help-page"><main>
 <header class="masthead"><h1>Подключение сервисов</h1><a href="/">Вернуться в панель</a></header>
-<section><h2>DonationAlerts</h2>
+<section id="donationalerts"><h2>DonationAlerts</h2>
 <ol>
 <li>Войдите в DonationAlerts под аккаунтом, который принимает донаты. Зарегистрируйте приложение в разделе <strong>Application Registration</strong> официальной документации.</li>
 <li>В настройках приложения укажите адрес возврата <code>http://127.0.0.1:18767/donationalerts/callback</code>. При запуске панели на другом порту замените <code>18767</code> на этот порт.</li>
-<li>Скопируйте <strong>Client ID</strong> и <strong>Client Secret</strong>. В панели откройте <strong>Настройки DonationAlerts</strong>, заполните оба поля и нажмите <strong>Сохранить настройки</strong>.</li>
+<li>Скопируйте <strong>Client ID</strong> и <strong>Client Secret</strong>. В карточке <strong>DonationAlerts</strong> заполните оба поля и нажмите <strong>Сохранить настройки</strong>.</li>
 <li>Нажмите <strong>Подключить DonationAlerts</strong> и подтвердите доступ к истории донатов на сайте DonationAlerts. Выберите эфир и нажмите <strong>Обновить донаты</strong>. При завершении эфира данные также загружаются автоматически.</li>
 </ol>
 <p><a href="https://www.donationalerts.com/apidoc" target="_blank" rel="noopener noreferrer">Документация DonationAlerts ↗</a></p></section>
-<section><h2>Streamer.bot</h2>
+<section id="streamerbot"><h2>Streamer.bot</h2>
 <ol>
 <li>В Streamer.bot откройте <strong>Platforms → Twitch → Accounts</strong>. В разделе <strong>Broadcaster Account</strong> нажмите <strong>Login</strong> и войдите в аккаунт стримера.</li>
 <li>В <strong>Servers/Clients → WebSocket Server</strong> укажите адрес <code>127.0.0.1</code>, порт <code>8080</code> и путь <code>/</code>. Нажмите <strong>Start</strong>.</li>

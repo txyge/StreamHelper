@@ -12,7 +12,8 @@ from urllib.request import Request, urlopen
 from streams import Problem, field, session
 
 BASE = "https://www.donationalerts.com"
-SCOPE = "oauth-donation-index"
+DONATION_SCOPE = "oauth-donation-index"
+SCOPE = DONATION_SCOPE + " oauth-user-show"
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS session_donations (
     session_id INTEGER NOT NULL REFERENCES sessions,
@@ -62,7 +63,7 @@ class Donations:
 
     def status(self):
         return {"configured": bool(self.client and self.secret), "connected": bool(self.tokens),
-                "message": self.message}
+                "account": self.tokens.get("account"), "message": self.message}
 
     def configure(self, values):
         client = field(values, "client_id", 64)
@@ -112,6 +113,15 @@ class Donations:
         except (URLError, ValueError):
             raise Problem("DonationAlerts отклонил авторизацию. Проверьте настройки приложения.", 502) from None
         previous = self.tokens if fields["grant_type"] == "refresh_token" else {}
+        if fields["grant_type"] == "authorization_code":
+            try:
+                profile = fetch("/api/v1/user/oauth", token=tokens["access_token"])["data"]
+                account = profile.get("name") or profile.get("code")
+                if not isinstance(account, str) or not account.strip():
+                    raise ValueError
+            except (URLError, ValueError, KeyError, TypeError, AttributeError):
+                raise Problem("Не удалось получить имя аккаунта DonationAlerts. Подтвердите доступ к профилю.", 502) from None
+            tokens["account"] = account
         self.save_auth(self.client, self.secret, {**previous, **tokens})
 
     def sync_later(self, sid):
@@ -136,7 +146,7 @@ class Donations:
             except HTTPError as exc:
                 if exc.code != 401 or not self.tokens.get("refresh_token") or not self.client or not self.secret:
                     raise Problem("Не удалось получить историю DonationAlerts. Проверьте подключение.", 502) from None
-                self.exchange({"grant_type":"refresh_token", "scope":SCOPE,
+                self.exchange({"grant_type":"refresh_token", "scope":SCOPE if self.tokens.get("account") else DONATION_SCOPE,
                                "refresh_token":self.tokens["refresh_token"]})
                 try:
                     contents = self.read_history(start, end)
