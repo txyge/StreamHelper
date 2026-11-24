@@ -186,7 +186,7 @@ def main():
     desktop = getattr(sys, "frozen", False)
     default_data = (Path(os.environ.get("LOCALAPPDATA") or Path.home()) / "StreamHelper"
                     if desktop else ROOT / "data")
-    parser = argparse.ArgumentParser(description="СтримПомощник")
+    parser = argparse.ArgumentParser(description="StreamHelper")
     parser.add_argument("--port", type=int, default=18768 if desktop else 18767)
     parser.add_argument("--data", type=Path, default=default_data)
     parser.add_argument("--no-browser", action="store_true", help=argparse.SUPPRESS)

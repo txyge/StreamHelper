@@ -9,7 +9,7 @@ let selected = popoutMode && /^[0-9]+$/.test(requestedSession) ? requestedSessio
 if (popoutMode) {
   document.body.dataset.panel = popoutMode;
   byId("page-title").textContent = panelMode[popoutMode];
-  document.title = panelMode[popoutMode] + " · СтримПомощник";
+  document.title = panelMode[popoutMode] + " · StreamHelper";
 }
 
 const themeControl = byId("theme-choice");
