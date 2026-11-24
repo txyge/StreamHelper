@@ -26,3 +26,5 @@ dl{display:grid;gap:.8rem;margin:0}dt{color:var(--muted);font-size:.87rem}dd{mar
   max-width:min(36rem,calc(100% - 2rem));padding:.7rem 1rem;border:1px solid var(--line);
   border-radius:.6rem;background:#252335;color:#abefcf;box-shadow:0 6px 24px #08080d99}
 #status.error{color:#ffb5c3}
+
+#summary-url{width:min(36rem,78vw)} details summary{cursor:pointer}

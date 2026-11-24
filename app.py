@@ -16,6 +16,7 @@ from streams import Problem, ROOT, Store
 STATIC = {
     "/": ("index.html", "text/html"),
     "/app.js": ("app.js", "text/javascript"),
+    "/help": ("help.html", "text/html"),
     "/summary.js": ("summary.js", "text/javascript"),
     "/style.css": ("style.css", "text/css"),
 }
@@ -54,10 +55,12 @@ class Handler(BaseHTTPRequestHandler):
         data = json.dumps(value, ensure_ascii=False).encode("utf-8")
         self.send_bytes(data, "application/json; charset=utf-8", status)
 
-    def send_bytes(self, data, mime, status=200):
+    def send_bytes(self, data, mime, status=200, filename=None):
         self.send_response(status)
         self.send_header("Content-Type", mime)
         self.send_header("Content-Length", str(len(data)))
+        if filename:
+            self.send_header("Content-Disposition", f'attachment; filename="{filename}"')
         self.send_header("Cache-Control", "no-store")
         self.send_header("X-Content-Type-Options", "nosniff")
         self.end_headers()
@@ -88,6 +91,9 @@ class Handler(BaseHTTPRequestHandler):
         if method == "GET" and path == "/api/connections":
             self.send_json({"bot":self.server.bot.message, "donations":self.server.donations.status()})
             return
+        if method == "POST" and path == "/api/donationalerts/settings":
+            self.send_json(self.server.donations.configure(self.json_body()))
+            return
         if method == "GET" and path == "/donationalerts/connect":
             self.redirect(self.server.donations.authorization())
             return
@@ -110,6 +116,18 @@ class Handler(BaseHTTPRequestHandler):
         match = re.fullmatch(r"/api/sessions/([0-9]+)(?:/([a-z]+))?", path)
         if match:
             sid, action = int(match[1]), match[2]
+            if method == "GET" and action in {"summary", "credits"}:
+                with store.connect() as db:
+                    report = summary.detail(db, sid)
+                if action == "credits":
+                    self.send_bytes(summary.credits(report).encode("utf-8"), "text/plain; charset=utf-8",
+                                    filename=f"stream-{sid}-credits.txt")
+                elif parse_qs(urlsplit(self.path).query).get("download") == ["1"]:
+                    content = json.dumps(report, ensure_ascii=False, indent=2).encode("utf-8")
+                    self.send_bytes(content, "application/json; charset=utf-8", filename=f"stream-{sid}.json")
+                else:
+                    self.send_json(report)
+                return
             if method == "POST" and action == "donations":
                 self.json_body()
                 self.server.donations.sync(sid)

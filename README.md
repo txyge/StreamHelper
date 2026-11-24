@@ -24,16 +24,12 @@ py -3 -m pip install --target data/twitch-runtime -r requirements-twitch.txt
 
 ## DonationAlerts
 
-В DonationAlerts зарегистрируйте приложение с адресом возврата `http://127.0.0.1:18767/donationalerts/callback`. Затем задайте ID и секрет **локально** в PowerShell и запустите панель из того же окна:
-
-```powershell
-$env:DA_CLIENT_ID = 'ID приложения DonationAlerts'
-$env:DA_CLIENT_SECRET = 'Секрет приложения DonationAlerts'
-.\launch.cmd
-```
-
-Нажмите **«Подключить DonationAlerts»** и подтвердите доступ к истории донатов. Если у вас уже есть токен с правом `oauth-donation-index`, его можно вместо этого задать через `DA_ACCESS_TOKEN`. Токены и секреты не публикуются панелью. Данные OAuth хранятся локально в `data`. [Регистрация и API DonationAlerts](https://www.donationalerts.com/apidoc)
+Откройте [инструкцию подключения](http://127.0.0.1:18767/help). Зарегистрируйте приложение в DonationAlerts с адресом возврата `http://127.0.0.1:18767/donationalerts/callback`. В панели откройте **«Настройки DonationAlerts»**, введите Client ID и Client Secret и сохраните настройки. Нажмите **«Подключить DonationAlerts»** и подтвердите доступ к истории донатов. Секрет и токены хранятся локально в каталоге `data`. [Регистрация и API DonationAlerts](https://www.donationalerts.com/apidoc)
 
 Панель загрузит платежи автоматически при завершении сессии. Кнопка **«Обновить донаты»** повторно загружает историю, в том числе для прошедшего эфира. Фильтр использует время создания платежа и границы выбранной сессии. Для дат из API без часового пояса принят UTC. Если история вашего аккаунта отдаёт такие даты в другом часовом поясе, перед запуском задайте смещение в минутах через `DA_UTC_OFFSET_MINUTES`, например `180` для UTC+3. Суммы отображаются в исходных валютах.
+
+## Выгрузка итога
+
+Выберите сессию. Во вкладке панели можно скачать JSON или текст UTF-8 для титров, а также скопировать URL интеграции. GET `/api/sessions/{id}/summary` возвращает актуальные данные итога. GET `/api/sessions/{id}/summary?download=1` скачивает JSON. GET `/api/sessions/{id}/credits` скачивает текст. API доступен только на этом компьютере. Временные отметки — Unix-время в секундах, поле `duration` — длительность в секундах.
 
 [Актуальное ТЗ](docs/spec.md) · [Проверка](docs/acceptance.md) · [Учебный отчёт предыдущей версии](docs/weekly-report.md)

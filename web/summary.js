@@ -8,6 +8,11 @@ function renderSummary() {
   panel.hidden = !current;
   if (!current) return;
   const report = current.report;
+  const endpoint = "/api/sessions/" + report.session_id;
+  byId("download-json").href = endpoint + "/summary?download=1";
+  byId("download-credits").href = endpoint + "/credits";
+  const url = location.origin + endpoint + "/summary";
+  if (byId("summary-url").value !== url) byId("summary-url").value = url;
   byId("report-title").textContent = report.title;
   byId("report-duration").textContent = "Длительность " + time(report.duration);
   byId("donation-updated").textContent = report.donations_synced
@@ -33,6 +38,26 @@ byId("sync-donations").addEventListener("click", run(async () => {
     button.disabled = false;
   }
 }, "История донатов обновлена."));
+
+form("da-settings", async data => {
+  await request("/api/donationalerts/settings", data);
+  byId("da-settings").reset();
+  byId("da-connect").hidden = false;
+  await poll();
+  return "Настройки сохранены. Теперь можно подключить DonationAlerts.";
+});
+
+byId("copy-summary-url").addEventListener("click", run(async () => {
+  const field = byId("summary-url");
+  try {
+    await navigator.clipboard.writeText(field.value);
+    return "URL скопирован.";
+  } catch {
+    field.focus();
+    field.select();
+    return "URL выделен. Нажмите Ctrl+C.";
+  }
+}));
 
 let polling = false;
 let chosenSession = false;

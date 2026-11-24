@@ -9,7 +9,7 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
-from streams import Problem, session
+from streams import Problem, field, session
 
 BASE = "https://www.donationalerts.com"
 SCOPE = "oauth-donation-index"
@@ -48,8 +48,11 @@ class Donations:
         self.tokens = {}
         if self.path.is_file():
             try:
-                self.tokens = json.loads(self.path.read_text(encoding="utf-8"))
-            except (OSError, ValueError):
+                saved = json.loads(self.path.read_text(encoding="utf-8"))
+                self.client = saved.get("client_id", self.client)
+                self.secret = saved.get("client_secret", self.secret)
+                self.tokens = saved.get("tokens", saved if saved.get("access_token") else {})
+            except (OSError, ValueError, AttributeError):
                 pass
         if os.getenv("DA_ACCESS_TOKEN"):
             self.tokens = {"access_token":os.environ["DA_ACCESS_TOKEN"]}
@@ -61,18 +64,36 @@ class Donations:
         return {"configured": bool(self.client and self.secret), "connected": bool(self.tokens),
                 "message": self.message}
 
-    def authorization(self):
-        if not self.client or not self.secret:
-            raise Problem("Задайте DA_CLIENT_ID и DA_CLIENT_SECRET перед запуском.")
+    def configure(self, values):
+        client = field(values, "client_id", 64)
+        secret = field(values, "client_secret", 512)
+        if not client.isascii() or not client.isdecimal():
+            raise Problem("Client ID DonationAlerts должен состоять из цифр.")
         with self.lock:
+            tokens = self.tokens if (client, secret) == (self.client, self.secret) else {}
+            self.save_auth(client, secret, tokens)
+            self.pending.clear()
+            self.message = ""
+        return {"configured": True}
+
+    def save_auth(self, client, secret, tokens):
+        temp = self.path.with_suffix(".tmp")
+        temp.write_text(json.dumps({"client_id":client, "client_secret":secret, "tokens":tokens}), encoding="utf-8")
+        temp.replace(self.path)
+        self.client, self.secret, self.tokens = client, secret, tokens
+
+    def authorization(self):
+        with self.lock:
+            if not self.client or not self.secret:
+                raise Problem("Сначала сохраните Client ID и Client Secret в панели.")
             state = secrets.token_urlsafe(32)
             now = time.monotonic()
             self.pending = {key:value for key,value in self.pending.items() if value > now}
             self.pending[state] = now + 600
-        return BASE + "/oauth/authorize?" + urlencode({
-            "client_id":self.client, "redirect_uri":self.redirect, "response_type":"code",
-            "scope":SCOPE, "state":state,
-        })
+            return BASE + "/oauth/authorize?" + urlencode({
+                "client_id":self.client, "redirect_uri":self.redirect, "response_type":"code",
+                "scope":SCOPE, "state":state,
+            })
 
     def callback(self, query):
         with self.lock:
@@ -90,11 +111,8 @@ class Donations:
                 raise ValueError
         except (URLError, ValueError):
             raise Problem("DonationAlerts отклонил авторизацию. Проверьте настройки приложения.", 502) from None
-        temp = self.path.with_suffix(".tmp")
-        updated = {**self.tokens, **tokens}
-        temp.write_text(json.dumps(updated), encoding="utf-8")
-        temp.replace(self.path)
-        self.tokens = updated
+        previous = self.tokens if fields["grant_type"] == "refresh_token" else {}
+        self.save_auth(self.client, self.secret, {**previous, **tokens})
 
     def sync_later(self, sid):
         if self.tokens:

@@ -64,7 +64,11 @@ class IntegrationTest(unittest.TestCase):
         request = json.loads(connection.send.call_args.args[0])
         self.assertIn("ChatMessage", request["events"]["Twitch"])
         self.assertIn("StreamUpdate", request["events"]["Twitch"])
-        self.donations.client, self.donations.secret = "123", "test"
+        self.assertEqual(self.donations.configure({"client_id":"123","client_secret":"test"}),
+                         {"configured":True})
+        self.donations = Donations(self.store, 18767)
+        self.assertTrue(self.donations.status()["configured"])
+        self.assertNotIn("test", str(self.donations.status()))
         from urllib.parse import urlsplit, parse_qs
         query = parse_qs(urlsplit(self.donations.authorization()).query)
         self.assertEqual(query["scope"], ["oauth-donation-index"])
@@ -72,3 +76,6 @@ class IntegrationTest(unittest.TestCase):
         with patch("donations.fetch", return_value={"access_token":"fake"}):
             self.donations.callback(query)
         self.assertTrue(self.donations.status()["connected"])
+        self.assertTrue(Donations(self.store, 18767).status()["connected"])
+        self.donations.configure({"client_id":"456","client_secret":"different"})
+        self.assertFalse(Donations(self.store, 18767).status()["connected"])
