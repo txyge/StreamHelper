@@ -1,8 +1,12 @@
 """Локальный HTTP-сервер проекта."""
 import argparse
 import json
+import os
 import re
 import socket
+import sys
+import webbrowser
+from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
@@ -88,6 +92,9 @@ class Handler(BaseHTTPRequestHandler):
 
     def dispatch(self, method, path):
         store = self.server.store
+        if method == "GET" and path == "/api/desktop" and getattr(self.server, "desktop", False):
+            self.send_json({"application": "StreamHelper Desktop"})
+            return
         if method == "GET" and path == "/api/connections":
             self.send_json({"bot":self.server.bot.message, "donations":self.server.donations.status()})
             return
@@ -176,16 +183,48 @@ class LocalServer(ThreadingHTTPServer):
 
 
 def main():
+    desktop = getattr(sys, "frozen", False)
+    default_data = (Path(os.environ.get("LOCALAPPDATA") or Path.home()) / "StreamHelper"
+                    if desktop else ROOT / "data")
     parser = argparse.ArgumentParser(description="СтримПомощник")
-    parser.add_argument("--port", type=int, default=18767)
-    parser.add_argument("--data", default=ROOT / "data")
+    parser.add_argument("--port", type=int, default=18768 if desktop else 18767)
+    parser.add_argument("--data", type=Path, default=default_data)
+    parser.add_argument("--no-browser", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args()
-    with LocalServer(("127.0.0.1", args.port), Handler) as server:
+
+    address = f"http://127.0.0.1:{args.port}/"
+    try:
+        server = LocalServer(("127.0.0.1", args.port), Handler)
+    except OSError:
+        if not desktop:
+            raise
+        from urllib.error import URLError
+        from urllib.request import urlopen
+        try:
+            with urlopen(address + "api/desktop", timeout=2) as response:
+                existing = json.load(response).get("application") == "StreamHelper Desktop"
+        except (URLError, OSError, ValueError):
+            existing = False
+        if existing and args.data == default_data:
+            if not args.no_browser:
+                webbrowser.open(address)
+            return
+        print(f"Could not use {address}. Close the program occupying this port and try again.", file=sys.stderr)
+        if sys.stdin.isatty():
+            input("Press Enter to close.")
+        raise SystemExit(1) from None
+
+    with server:
+        server.desktop = desktop
         server.store = Store(args.data)
         server.donations = Donations(server.store, server.server_port)
         server.bot = StreamerBot(server.store, server.donations.sync_later)
         server.bot.start()
-        print(f"StreamHelper: http://127.0.0.1:{server.server_port}/", flush=True)
+        url = f"http://127.0.0.1:{server.server_port}/"
+        print(f"StreamHelper: {url}", flush=True)
+        if desktop and not args.no_browser:
+            print("Close this window or press Ctrl+C to stop the server.", flush=True)
+            webbrowser.open(url)
         try:
             server.serve_forever()
         except KeyboardInterrupt:

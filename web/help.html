@@ -7,7 +7,7 @@
 <section id="donationalerts"><h2>DonationAlerts</h2>
 <ol>
 <li>Войдите в DonationAlerts под аккаунтом, который принимает донаты. Зарегистрируйте приложение в разделе <strong>Application Registration</strong> официальной документации.</li>
-<li>В настройках приложения укажите адрес возврата <code>http://127.0.0.1:18767/donationalerts/callback</code>. При запуске панели на другом порту замените <code>18767</code> на этот порт.</li>
+<li>В настройках приложения укажите адрес возврата <code id="callback-address">http://127.0.0.1:18767/donationalerts/callback</code>.</li>
 <li>Скопируйте <strong>Client ID</strong> и <strong>Client Secret</strong>. В карточке <strong>DonationAlerts</strong> заполните оба поля и нажмите <strong>Сохранить настройки</strong>.</li>
 <li>Нажмите <strong>Подключить DonationAlerts</strong> и подтвердите доступ к истории донатов на сайте DonationAlerts. Выберите эфир и нажмите <strong>Обновить донаты</strong>. При завершении эфира данные также загружаются автоматически.</li>
 </ol>
@@ -24,4 +24,7 @@
 <p>Выберите сессию в панели. В блоке <strong>Выгрузка итога</strong> скачайте JSON для своего приложения или текст UTF-8 для титров. Текстовый файл можно открыть в редакторе и использовать как источник текста в OBS.</p>
 <p>Локальный URL для интеграции возвращает актуальный JSON выбранной сессии. Он предназначен для программ на том же компьютере. Временные отметки в JSON — Unix-время в секундах, длительность — число секунд.</p>
 </section>
-</main></body></html>
+</main><script>
+document.getElementById("callback-address").textContent =
+  "http://127.0.0.1:" + location.port + "/donationalerts/callback";
+</script></body></html>
