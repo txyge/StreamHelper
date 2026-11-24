@@ -72,7 +72,8 @@ async function refresh(preferred = selected) {
   select.replaceChildren(option("", "Выберите эфир"), ...sessions.map(item =>
     option(String(item.id), item.title + (item.ended === null ? " · в эфире" : " · завершён"))
   ));
-  const target = preferred ?? (sessions.length ? String(sessions[0].id) : "");
+  const latest = sessions.find(item => item.twitch_stream && item.ended === null) || sessions[0];
+  const target = preferred ?? (latest ? String(latest.id) : "");
   selected = target;
   select.value = target;
   const detail = target ? await request("/api/sessions/" + target) : null;
@@ -91,13 +92,18 @@ function render() {
   byId("chat").hidden = !current;
   renderMedia();
   renderPublication();
-  if (!current) return;
+  if (!current) {
+    byId("twitch-clip").hidden = true;
+    return;
+  }
   renderChat();
   const {session, duration, marks} = current;
   const live = session.ended === null;
   byId("session-info").textContent = session.title + " · Начало " + date(session.started)
     + (live ? "" : " · Завершение " + date(session.ended));
-  byId("finish").hidden = !live;
+  const twitch = current.card.source === "twitch";
+  byId("finish").hidden = !live || twitch;
+  byId("twitch-clip").hidden = !live || !twitch;
   byId("mark").hidden = !live;
   byId("summary-title").textContent = live ? "Таймкоды" : "Личные итоги";
   byId("duration").textContent = (live ? "От начала эфира " : "Длительность ") + time(duration);
@@ -136,25 +142,14 @@ function itemButton(row, label, name, id) {
   row.append(" ", button);
 }
 
-let rulesSession = null;
 function renderChat() {
-  const {session, messages, hidden, flagged_count, questions, settings} = current;
-  const live = session.ended === null;
-  byId("message").hidden = !live;
-  byId("rules").hidden = !live;
-  if (rulesSession !== session.id) {
-    rulesSession = session.id;
-    byId("rules").elements.game.value = settings.game;
-    byId("rules").elements.phrases.value = settings.phrases.join("\n");
-  }
-  byId("hidden-count").textContent = "Сейчас скрыто " + hidden.length + " · Всего срабатываний " + flagged_count;
+
+  const {session, messages, questions, card} = current;
+  byId("demo-chat").hidden = card.source === "twitch";
+  byId("message").hidden = session.ended !== null;
   list("messages", messages, (row, item) => {
     row.textContent = item.nick + " · " + item.body;
   }, "Сообщений пока нет.");
-  list("hidden-messages", hidden, (row, item) => {
-    row.textContent = item.nick + " · " + item.body + " · Правило «" + item.rule + "»";
-    itemButton(row, "Восстановить", "restore", item.id);
-  }, "Очередь проверки пуста.");
   list("questions", questions, (row, item) => {
     row.textContent = item.nick + " · " + item.body + " · " + (item.answered ? "Отвечен" : "Новый");
     if (!item.answered) itemButton(row, "Отметить отвеченным", "answer", item.id);
@@ -166,9 +161,3 @@ form("message", async data => {
   byId("message").elements.body.value = "";
   await refresh();
 });
-form("rules", async data => {
-  await action("rules", data);
-  rulesSession = null;
-  await refresh();
-});
-window.addEventListener("DOMContentLoaded", run(() => refresh()));

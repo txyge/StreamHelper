@@ -2,6 +2,7 @@
 import argparse
 import json
 import re
+import socket
 from urllib.parse import urlsplit
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
@@ -9,6 +10,7 @@ import chat
 import media
 import publication
 import streams
+from twitch import Twitch
 from streams import Problem, ROOT, Store
 
 STATIC = {
@@ -18,13 +20,13 @@ STATIC = {
     "/viewer.js": ("viewer.js", "text/javascript"),
     "/card.js": ("card.js", "text/javascript"),
     "/publish.js": ("publish.js", "text/javascript"),
+    "/twitch.js": ("twitch.js", "text/javascript"),
     "/media.js": ("media.js", "text/javascript"),
     "/style.css": ("style.css", "text/css"),
 }
 ACTIONS = {
     "finish": streams.finish, "marks": streams.mark,
-    "message": chat.message, "restore": chat.restore,
-    "answer": chat.answer, "rules": chat.settings, "publish": publication.publish,
+    "message": chat.message, "answer": chat.answer, "publish": publication.publish,
 }
 
 
@@ -88,6 +90,12 @@ class Handler(BaseHTTPRequestHandler):
 
     def dispatch(self, method, path):
         store = self.server.store
+        if method == "GET" and path == "/api/twitch":
+            self.send_json(self.server.twitch.status())
+            return
+        if method == "POST" and path == "/api/twitch/connect":
+            self.send_json(self.server.twitch.connect(self.json_body().get("client_id")))
+            return
         if method == "GET" and path == "/api/viewer":
             with store.connect() as db:
                 card = publication.latest(db)
@@ -105,12 +113,17 @@ class Handler(BaseHTTPRequestHandler):
                     result = streams.start(db, self.json_body())
                 else:
                     result = [dict(row) for row in db.execute(
-                        "SELECT * FROM sessions ORDER BY id DESC")]
+                        "SELECT s.*, t.stream AS twitch_stream FROM sessions s "
+                        "LEFT JOIN twitch_streams t ON t.session_id=s.id ORDER BY s.id DESC")]
             self.send_json(result)
             return
         match = re.fullmatch(r"/api/sessions/([0-9]+)(?:/([a-z]+))?", path)
         if match:
             sid, action = int(match[1]), match[2]
+            if method == "POST" and action == "twitchclip":
+                self.json_body()
+                self.send_json(self.server.twitch.create_clip(sid))
+                return
             if method == "POST" and action == "recording":
                 self.send_json(media.upload(store, sid, self.rfile, self.length(media.MAX_UPLOAD),
                                             self.headers.get_content_type()))
@@ -121,12 +134,16 @@ class Handler(BaseHTTPRequestHandler):
             if method == "GET" and action is None:
                 with store.connect() as db:
                     result = {**streams.detail(db, sid), **chat.detail(db, sid),
-                              **media.detail(db, sid)}
+                              **media.detail(db, sid), "card": publication.preview(db, sid)}
                 self.send_json(result)
                 return
             if method == "POST" and action in ACTIONS:
                 data = self.json_body()
                 with store.connect(write=True) as db:
+                    if action in {"finish", "message"} and db.execute(
+                        "SELECT 1 FROM twitch_streams WHERE session_id=?", (sid,)
+                    ).fetchone():
+                        raise Problem("Эта сессия управляется Twitch.", 409)
                     result = ACTIONS[action](db, sid, data)
                 self.send_json(result)
                 return
@@ -201,13 +218,23 @@ def report_error():
     traceback.print_exc()
 
 
+class LocalServer(ThreadingHTTPServer):
+    allow_reuse_address = False
+
+    def server_bind(self):
+        if hasattr(socket, "SO_EXCLUSIVEADDRUSE"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+        super().server_bind()
+
+
 def main():
     parser = argparse.ArgumentParser(description="СтримПомощник")
-    parser.add_argument("--port", type=int, default=18765)
+    parser.add_argument("--port", type=int, default=18767)
     parser.add_argument("--data", default=ROOT / "data")
     args = parser.parse_args()
-    with ThreadingHTTPServer(("127.0.0.1", args.port), Handler) as server:
+    with LocalServer(("127.0.0.1", args.port), Handler) as server:
         server.store = Store(args.data)
+        server.twitch = Twitch(server.store)
         print(f"StreamHelper: http://127.0.0.1:{server.server_port}/", flush=True)
         try:
             server.serve_forever()

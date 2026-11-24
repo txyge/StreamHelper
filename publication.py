@@ -1,36 +1,25 @@
-"""Снимок выбранных зрительских итогов."""
+"""Предпросмотр и публикация сформированных итогов."""
 import json
 
-from chat import item_id
-from streams import Problem, duration, field, session
+import twitch_data
+from streams import Problem, duration, session
 
 
-def selected(db, sid, data, key, query):
-    if data.get(key) is None:
-        return None
-    row = db.execute(query, (item_id(data, key), sid)).fetchone()
-    if not row:
-        raise Problem("Выбранный элемент недоступен в этом эфире.")
-    return dict(row)
+def preview(db, sid):
+    row = session(db, sid)
+    card = twitch_data.card(db, sid)
+    if card is not None:
+        return card
+    clips = [{"title": f"{clip['start']:.1f}–{clip['end']:.1f} с",
+              "url": "/clips/" + clip["id"]}
+             for clip in db.execute("SELECT id,start,end FROM clips WHERE session_id=? ORDER BY rowid", (sid,))]
+    return {"source": "demo", "title": row["title"], "duration": duration(row), "clips": clips}
 
 
 def publish(db, sid, data):
-    row = session(db, sid)
-    if row["ended"] is None:
-        raise Problem("Сначала завершите эфир.", 409)
-    card = {"duration": duration(row)}
-    moment = selected(db, sid, data, "moment",
-                      "SELECT seconds, label FROM marks WHERE id=? AND session_id=?")
-    question = selected(db, sid, data, "question",
-                        "SELECT nick, body FROM questions WHERE id=? AND session_id=?")
-    if moment is not None:
-        card["moment"] = moment
-    if question is not None:
-        card["question"] = question
-    for key in ("challenge", "announcement"):
-        text = field(data, key, 250, required=False)
-        if text:
-            card[key] = text
+    if session(db, sid)["ended"] is None:
+        raise Problem("Дождитесь завершения эфира.", 409)
+    card = preview(db, sid)
     db.execute(
         "INSERT INTO published VALUES (1, ?) ON CONFLICT(id) DO UPDATE SET payload=excluded.payload",
         (json.dumps(card, ensure_ascii=False),)

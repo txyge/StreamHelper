@@ -17,7 +17,7 @@ function useRecording(item) {
 }
 
 function renderMedia() {
-  byId("media").hidden = !current;
+  byId("media").hidden = !current || current.card.source === "twitch";
   if (!current) {
     mediaSession = null;
     useRecording(null);
