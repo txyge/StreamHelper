@@ -26,7 +26,7 @@ function run(action, success = "") {
   return async event => {
     event?.preventDefault();
     try {
-      await action();
+      await action(event);
       status(success);
     } catch (error) {
       status(error.message, true);
@@ -45,12 +45,6 @@ function form(id, action) {
       button.disabled = false;
     }
   }));
-}
-
-function time(seconds) {
-  const whole = Math.floor(seconds);
-  return [Math.floor(whole / 3600), Math.floor(whole / 60) % 60, whole % 60]
-    .map(value => String(value).padStart(2, "0")).join(":");
 }
 
 function option(value, label) {
@@ -96,6 +90,7 @@ function render() {
   byId("summary").hidden = !current;
   byId("chat").hidden = !current;
   renderMedia();
+  renderPublication();
   if (!current) return;
   renderChat();
   const {session, duration, marks} = current;
@@ -176,4 +171,4 @@ form("rules", async data => {
   rulesSession = null;
   await refresh();
 });
-run(refresh)();
+window.addEventListener("DOMContentLoaded", run(() => refresh()));

@@ -1,12 +1,13 @@
 <!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>СтримПомощник</title><link rel="stylesheet" href="/style.css"><script defer src="/app.js"></script><script defer src="/media.js"></script></head>
+<title>СтримПомощник</title><link rel="stylesheet" href="/style.css"><script defer src="/card.js"></script><script defer src="/app.js"></script>
+<script defer src="/media.js"></script><script defer src="/publish.js"></script></head>
 <body><main>
-<header><h1>СтримПомощник</h1></header>
+<header class="masthead"><h1>СтримПомощник</h1><a href="/viewer" target="_blank" rel="noopener">Экран зрителей ↗</a></header>
 <p id="status" role="status" aria-live="polite"></p>
 <section><h2>Эфир</h2>
 <form id="start"><label>Название <input name="title" maxlength="120" required></label><button>Начать эфир</button></form>
-<label>Сессия <select id="sessions"><option value="">Выберите эфир</option></select></label>
+<div class="field"><label for="sessions">Сессия</label><select id="sessions"><option value="">Выберите эфир</option></select></div>
 <div id="session" hidden><p id="session-info"></p><button id="finish" type="button">Завершить эфир</button>
 <form id="mark"><label>Подпись момента <input name="label" maxlength="120" required></label>
 <label>Приватная заметка <input name="note" maxlength="500"></label><button>Поставить таймкод</button></form></div>
@@ -37,4 +38,13 @@
 <p id="hidden-count"></p><ul id="hidden-messages"></ul></section>
 <section><h2>Вопросы</h2><ul id="questions"></ul></section>
 </div>
+<section id="publication" hidden><h2>Итоги для зрителей</h2>
+<div class="media-layout"><form id="publish" class="draft">
+<div class="field"><label for="draft-moment">Момент</label><select name="moment" id="draft-moment"></select></div>
+<div class="field"><label for="draft-question">Вопрос</label><select name="question" id="draft-question"></select></div>
+<label>Результат челленджа <input name="challenge" maxlength="250"></label>
+<label>Анонс следующего эфира <input name="announcement" maxlength="250"></label>
+<button>Показать зрителям</button><p id="publish-status" role="status"></p></form>
+<div><h3>Предпросмотр</h3><div id="preview"></div></div></div>
+</section>
 </main></body></html>

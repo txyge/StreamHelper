@@ -7,19 +7,24 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import chat
 import media
+import publication
 import streams
 from streams import Problem, ROOT, Store
 
 STATIC = {
     "/": ("index.html", "text/html"),
     "/app.js": ("app.js", "text/javascript"),
+    "/viewer": ("viewer.html", "text/html"),
+    "/viewer.js": ("viewer.js", "text/javascript"),
+    "/card.js": ("card.js", "text/javascript"),
+    "/publish.js": ("publish.js", "text/javascript"),
     "/media.js": ("media.js", "text/javascript"),
     "/style.css": ("style.css", "text/css"),
 }
 ACTIONS = {
     "finish": streams.finish, "marks": streams.mark,
     "message": chat.message, "restore": chat.restore,
-    "answer": chat.answer, "rules": chat.settings,
+    "answer": chat.answer, "rules": chat.settings, "publish": publication.publish,
 }
 
 
@@ -83,6 +88,11 @@ class Handler(BaseHTTPRequestHandler):
 
     def dispatch(self, method, path):
         store = self.server.store
+        if method == "GET" and path == "/api/viewer":
+            with store.connect() as db:
+                card = publication.latest(db)
+            self.send_json(card)
+            return
         if method == "GET" and self.find_media(path):
             return
         if method == "GET" and path in STATIC:
