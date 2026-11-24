@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="710" viewBox="0 0 880 710" role="img">
+  <title>Варианты использования</title>
+  <rect x="0" y="0" width="880" height="710" fill="#ffffff" stroke="#ffffff" stroke-width="1.5" />
+  <text x="440.0" y="34" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="23" font-weight="700">Варианты использования</text>
+  <rect x="160" y="60" width="560" height="610" fill="#faf7ff" stroke="#62518a" stroke-width="1.5" />
+  <text x="440" y="89" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">СтримПомощник</text>
+  <line x1="108" y1="258" x2="250" y2="131" stroke="#62518a" stroke-width="1.4" />
+  <ellipse cx="440.0" cy="131.0" rx="190.0" ry="22.0" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="440" y="136" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Начать и завершить эфир · F01</text>
+  <line x1="108" y1="258" x2="250" y2="194" stroke="#62518a" stroke-width="1.4" />
+  <ellipse cx="440.0" cy="194.0" rx="190.0" ry="22.0" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="440" y="199" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Поставить таймкод · F02</text>
+  <line x1="108" y1="258" x2="250" y2="257" stroke="#62518a" stroke-width="1.4" />
+  <ellipse cx="440.0" cy="257.0" rx="190.0" ry="22.0" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="440" y="262" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Сохранить клип · F03, F04</text>
+  <line x1="108" y1="258" x2="250" y2="320" stroke="#62518a" stroke-width="1.4" />
+  <ellipse cx="440.0" cy="320.0" rx="190.0" ry="22.0" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="440" y="325" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Отправить сообщение в тестовый чат · F05</text>
+  <line x1="108" y1="258" x2="250" y2="383" stroke="#62518a" stroke-width="1.4" />
+  <ellipse cx="440.0" cy="383.0" rx="190.0" ry="22.0" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="440" y="388" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Отметить отвеченный вопрос · F05</text>
+  <line x1="108" y1="258" x2="250" y2="446" stroke="#62518a" stroke-width="1.4" />
+  <ellipse cx="440.0" cy="446.0" rx="190.0" ry="22.0" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="440" y="451" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Настроить правила и восстановить · F06</text>
+  <line x1="108" y1="258" x2="250" y2="509" stroke="#62518a" stroke-width="1.4" />
+  <ellipse cx="440.0" cy="509.0" rx="190.0" ry="22.0" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="440" y="514" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Открыть личные итоги · F07</text>
+  <line x1="108" y1="258" x2="250" y2="572" stroke="#62518a" stroke-width="1.4" />
+  <ellipse cx="440.0" cy="572.0" rx="190.0" ry="22.0" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="440" y="577" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Предпросмотр и публикация · F08, F09</text>
+  <line x1="772" y1="635" x2="630" y2="635" stroke="#62518a" stroke-width="1.4" />
+  <ellipse cx="440.0" cy="635.0" rx="190.0" ry="22.0" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="440" y="640" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Открыть зрительскую карточку · F08, F09</text>
+  <ellipse cx="86.0" cy="231.0" rx="9.0" ry="9.0" fill="#ffffff" stroke="#62518a" stroke-width="1.5" />
+  <line x1="86" y1="240" x2="86" y2="270" stroke="#62518a" stroke-width="1.4" />
+  <line x1="67" y1="248" x2="105" y2="248" stroke="#62518a" stroke-width="1.4" />
+  <line x1="86" y1="270" x2="70" y2="289" stroke="#62518a" stroke-width="1.4" />
+  <line x1="86" y1="270" x2="102" y2="289" stroke="#62518a" stroke-width="1.4" />
+  <text x="86" y="310" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Стример</text>
+  <ellipse cx="793.0" cy="608.0" rx="9.0" ry="9.0" fill="#ffffff" stroke="#62518a" stroke-width="1.5" />
+  <line x1="793" y1="617" x2="793" y2="647" stroke="#62518a" stroke-width="1.4" />
+  <line x1="774" y1="625" x2="812" y2="625" stroke="#62518a" stroke-width="1.4" />
+  <line x1="793" y1="647" x2="777" y2="666" stroke="#62518a" stroke-width="1.4" />
+  <line x1="793" y1="647" x2="809" y2="666" stroke="#62518a" stroke-width="1.4" />
+  <text x="793" y="687" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Зритель</text>
+</svg>

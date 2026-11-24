@@ -1,0 +1,55 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="572" viewBox="0 0 1100 572" role="img">
+  <title>Завершение эфира и публикация итогов</title>
+  <rect x="0" y="0" width="1100" height="572" fill="#ffffff" stroke="#ffffff" stroke-width="1.5" />
+  <text x="550.0" y="34" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="23" font-weight="700">Завершение эфира и публикация итогов</text>
+  <rect x="28" y="69" width="164" height="45" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="110" y="97" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Стример</text>
+  <line x1="110" y1="114" x2="110" y2="540" stroke="#62518a" stroke-width="1.4" stroke-dasharray="6 5" />
+  <rect x="244" y="69" width="164" height="45" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="326" y="97" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Панель</text>
+  <line x1="326" y1="114" x2="326" y2="540" stroke="#62518a" stroke-width="1.4" stroke-dasharray="6 5" />
+  <rect x="466" y="69" width="164" height="45" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="548" y="97" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">HTTP API</text>
+  <line x1="548" y1="114" x2="548" y2="540" stroke="#62518a" stroke-width="1.4" stroke-dasharray="6 5" />
+  <rect x="678" y="69" width="164" height="45" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="760" y="97" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">SQLite</text>
+  <line x1="760" y1="114" x2="760" y2="540" stroke="#62518a" stroke-width="1.4" stroke-dasharray="6 5" />
+  <rect x="892" y="69" width="164" height="45" fill="#f3edff" stroke="#62518a" stroke-width="1.5" />
+  <text x="974" y="97" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Экран зрителей</text>
+  <line x1="974" y1="114" x2="974" y2="540" stroke="#62518a" stroke-width="1.4" stroke-dasharray="6 5" />
+  <line x1="110" y1="145" x2="326" y2="145" stroke="#62518a" stroke-width="1.4" />
+  <polygon points="326,145 317.0,149.0 317.0,141.0" fill="#62518a" />
+  <text x="218.0" y="139" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="400">Завершить эфир</text>
+  <line x1="326" y1="180" x2="548" y2="180" stroke="#62518a" stroke-width="1.4" />
+  <polygon points="548,180 539.0,184.0 539.0,176.0" fill="#62518a" />
+  <text x="437.0" y="174" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="400">POST /finish</text>
+  <line x1="548" y1="215" x2="760" y2="215" stroke="#62518a" stroke-width="1.4" />
+  <polygon points="760,215 751.0,219.0 751.0,211.0" fill="#62518a" />
+  <text x="654.0" y="209" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="400">Записать ended</text>
+  <line x1="548" y1="250" x2="326" y2="250" stroke="#62518a" stroke-width="1.4" stroke-dasharray="6 5" />
+  <polygon points="326,250 335.0,246.0 335.0,254.0" fill="#62518a" />
+  <text x="437.0" y="244" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="400">Вернуть итог сессии¹</text>
+  <line x1="110" y1="285" x2="326" y2="285" stroke="#62518a" stroke-width="1.4" />
+  <polygon points="326,285 317.0,289.0 317.0,281.0" fill="#62518a" />
+  <text x="218.0" y="279" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="400">Выбор и предпросмотр</text>
+  <line x1="326" y1="320" x2="548" y2="320" stroke="#62518a" stroke-width="1.4" />
+  <polygon points="548,320 539.0,324.0 539.0,316.0" fill="#62518a" />
+  <text x="437.0" y="314" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="400">POST /publish</text>
+  <line x1="548" y1="355" x2="760" y2="355" stroke="#62518a" stroke-width="1.4" />
+  <polygon points="760,355 751.0,359.0 751.0,351.0" fill="#62518a" />
+  <text x="654.0" y="349" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="400">Записать снимок</text>
+  <line x1="548" y1="390" x2="326" y2="390" stroke="#62518a" stroke-width="1.4" stroke-dasharray="6 5" />
+  <polygon points="326,390 335.0,386.0 335.0,394.0" fill="#62518a" />
+  <text x="437.0" y="384" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="400">Карточка сохранена</text>
+  <line x1="974" y1="425" x2="548" y2="425" stroke="#62518a" stroke-width="1.4" />
+  <polygon points="548,425 557.0,421.0 557.0,429.0" fill="#62518a" />
+  <text x="761.0" y="419" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="400">GET /api/viewer</text>
+  <line x1="548" y1="460" x2="760" y2="460" stroke="#62518a" stroke-width="1.4" />
+  <polygon points="760,460 751.0,464.0 751.0,456.0" fill="#62518a" />
+  <text x="654.0" y="454" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="400">Прочитать снимок</text>
+  <line x1="548" y1="495" x2="974" y2="495" stroke="#62518a" stroke-width="1.4" stroke-dasharray="6 5" />
+  <polygon points="974,495 965.0,499.0 965.0,491.0" fill="#62518a" />
+  <text x="761.0" y="489" fill="#241b36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="400">Только опубликованная карточка</text>
+  <text x="28" y="558" fill="#241b36" text-anchor="start" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="400">¹ Панель запрашивает актуальные личные итоги отдельным GET после POST /finish.</text>
+</svg>
