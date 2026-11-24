@@ -70,14 +70,24 @@ const probe = process.env.STREAMHELPER_FFPROBE || "ffprobe";
     await page.getByLabel("Позиция в записи, с").fill("45");
     await page.getByRole("button", {name:"Перейти"}).click();
     await page.waitForFunction(() => document.getElementById("recording-video").currentTime === 45);
-    await page.getByRole("button", {name:"Сохранить последние 30 секунд"}).click();
+    await page.getByLabel("Длительность клипа, с").fill("17");
+    assert.equal(await page.getByRole("button", {name:"Включить голос"}).count(), 0);
+    await page.getByRole("button", {name:"Назначить клавишу"}).click();
+    await page.keyboard.press("k");
+    await page.getByText("Клавиша: K.", {exact:false}).waitFor();
+    await page.locator("body").click({position:{x:2,y:2}});
+    await page.keyboard.press("k");
     await page.getByText("Клип сохранён.", {exact:true}).waitFor();
     const clip = fs.readdirSync(path.join(directory, "clips"))[0];
     assert.equal(Number(execFileSync(probe, [
       "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", path.join(directory, "clips", clip)
-    ])), 30);
+    ])), 17);
     assert.deepEqual(errors, []);
-    console.log("PASS offline demo: questions and 30-second FFmpeg clip");
+    await page.reload();
+    await page.getByText("Клавиша: K.", {exact:false}).waitFor();
+    await page.getByRole("button", {name:"Сбросить клавишу"}).click();
+    await page.getByText("Клавиша не назначена.", {exact:false}).waitFor();
+    console.log("PASS offline demo: questions, 17-second FFmpeg clip via saved shortcut, and shortcut reset");
   } finally {
     if (browser) await browser.close();
     if (app.exitCode === null) await new Promise(resolve => {

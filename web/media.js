@@ -3,6 +3,7 @@ const fileInput = byId("recording-file");
 let recording = null;
 let mediaSession = null;
 let exporting = false;
+const clipDuration = byId("clip-duration");
 
 function useRecording(item) {
   const id = item?.id ?? null;
@@ -85,12 +86,13 @@ const saveClip = run(async () => {
   if (exporting) return;
   if (!recording || player.readyState < 1) throw new Error("Сначала загрузите запись.");
   if (!(player.currentTime > 0)) throw new Error("Пустой отрезок. Перейдите к нужной позиции записи.");
+  if (!clipDuration.reportValidity()) return;
   const sid = selected;
   exporting = true;
   byId("save-clip").disabled = true;
   status("Экспортируем клип…");
   try {
-    await action("clips", {recording, position: player.currentTime}, sid);
+    await action("clips", {recording, position: player.currentTime, duration: clipDuration.valueAsNumber}, sid);
     if (selected === sid) await refresh();
   } finally {
     exporting = false;
@@ -98,56 +100,72 @@ const saveClip = run(async () => {
   }
 }, "Клип сохранён.");
 byId("save-clip").addEventListener("click", saveClip);
+
 player.addEventListener("error", () => status("Браузер не смог открыть запись. Попробуйте MP4 с кодеком H.264.", true));
 
-const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-const voiceButton = byId("voice");
-const voiceStatus = byId("voice-status");
-let recognition = null;
-if (!Speech) voiceStatus.textContent = "Этот браузер не поддерживает распознавание речи.";
-voiceButton.addEventListener("click", () => {
-  if (!Speech) return;
-  if (recognition) {
-    recognition.stop();
+const hotkeyStorage = "streamhelper.localClipHotkey";
+const bindHotkey = byId("clip-hotkey");
+const clearHotkey = byId("clear-clip-hotkey");
+const hotkeyStatus = byId("clip-hotkey-status");
+const allowedHotkey = /^(Key[A-Z]|Digit[0-9])$/;
+let hotkey = readHotkey();
+let assigningHotkey = false;
+
+function readHotkey() {
+  try {
+    const saved = localStorage.getItem(hotkeyStorage);
+    return allowedHotkey.test(saved) ? saved : "";
+  } catch {
+    return "";
+  }
+}
+
+function setHotkey(value) {
+  hotkey = value;
+  assigningHotkey = false;
+  renderHotkey();
+  try {
+    if (value) localStorage.setItem(hotkeyStorage, value);
+    else localStorage.removeItem(hotkeyStorage);
+  } catch {
+    hotkeyStatus.textContent += " Браузер заблокировал сохранение настройки.";
+  }
+}
+
+function renderHotkey() {
+  bindHotkey.textContent = assigningHotkey ? "Отменить назначение" : "Назначить клавишу";
+  clearHotkey.hidden = !hotkey;
+  if (assigningHotkey) {
+    hotkeyStatus.textContent = "Нажмите букву или цифру. Esc отменяет назначение.";
+  } else {
+    hotkeyStatus.textContent = (hotkey ? "Клавиша: " + hotkey.slice(-1) + "." : "Клавиша не назначена.")
+      + " Работает, пока панель в фокусе.";
+  }
+}
+
+bindHotkey.addEventListener("click", () => {
+  assigningHotkey = !assigningHotkey;
+  renderHotkey();
+});
+clearHotkey.addEventListener("click", () => setHotkey(""));
+document.addEventListener("keydown", event => {
+  if (byId("media").hidden || event.repeat || event.isComposing) return;
+  if (assigningHotkey && event.code === "Escape") {
+    event.preventDefault();
+    assigningHotkey = false;
+    renderHotkey();
     return;
   }
-  const listen = new Speech();
-  listen.lang = "ru-RU";
-  listen.interimResults = false;
-  recognition = listen;
-  voiceButton.textContent = "Остановить прослушивание";
-  voiceStatus.textContent = "Произнесите «Сохрани клип».";
-  let resultMessage = "Прослушивание завершено.";
-  listen.onresult = event => {
-    const phrase = event.results[0][0].transcript.toLocaleLowerCase("ru").trim().replace(/[.!?…]+$/, "");
-    if (phrase === "сохрани клип") {
-      resultMessage = "Команда распознана.";
-      saveClip();
-    } else {
-      resultMessage = "Команда не распознана. Произнесите «Сохрани клип».";
-    }
-  };
-  listen.onerror = event => {
-    const messages = {
-      "not-allowed": "Разрешите браузеру доступ к микрофону.",
-      "service-not-allowed": "Браузер запретил сервис распознавания.",
-      "audio-capture": "Микрофон недоступен.",
-      "network": "Сервис распознавания недоступен по сети.",
-      "no-speech": "Речь не обнаружена."
-    };
-    resultMessage = messages[event.error] || "Ошибка распознавания: " + event.error;
-    voiceStatus.textContent = resultMessage;
-  };
-  const reset = () => {
-    recognition = null;
-    voiceButton.textContent = "Включить голос";
-    voiceStatus.textContent = resultMessage;
-  };
-  listen.onend = reset;
-  try {
-    listen.start();
-  } catch {
-    resultMessage = "Браузер не смог запустить распознавание.";
-    reset();
+  if (event.ctrlKey || event.altKey || event.metaKey || event.shiftKey) return;
+  if (assigningHotkey && allowedHotkey.test(event.code)) {
+    event.preventDefault();
+    setHotkey(event.code);
+    return;
+  }
+  if (!assigningHotkey && hotkey === event.code &&
+      !event.defaultPrevented && !event.target.closest("input, textarea, select, [contenteditable], [role=textbox]")) {
+    event.preventDefault();
+    byId("save-clip").click();
   }
 });
+renderHotkey();

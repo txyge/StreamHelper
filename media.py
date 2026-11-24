@@ -98,7 +98,10 @@ def export(store, sid, data):
     if type(number) not in (int, float) or not 0 < number <= source["duration"] + 0.1:
         raise Problem("Пустой или недопустимый отрезок. Перейдите к нужной позиции записи.")
     end = min(float(number), source["duration"])
-    start = max(0, end - 30)
+    seconds = data.get("duration", 30)
+    if type(seconds) is not int or not 1 <= seconds <= 300:
+        raise Problem("Длительность клипа должна быть от 1 до 300 секунд.")
+    start = max(0, end - seconds)
     key = uuid4().hex
     target = file_path(store, "clips", key + ".mp4")
     try:
